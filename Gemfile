@@ -6,6 +6,7 @@ ruby "3.3.3"
 gem "rails", "~> 7.2.3"
 # The original asset pipeline for Rails [https://github.com/rails/sprockets-rails]
 gem "sprockets-rails"
+gem "sassc-rails"
 # Use postgresql as the database for Active Record
 gem "pg", "~> 1.1"
 # Use the Puma web server [https://github.com/puma/puma]
@@ -25,7 +26,7 @@ gem "rack-attack"
 # Admin UI framework
 gem "activeadmin"
 gem "devise", "~> 4.9"
-gem "sassc-rails"
+gem "dartsass-rails"
 
 # Tailwind CSS for utility-first inline styling
 gem "tailwindcss-rails"
