@@ -1,0 +1,136 @@
+<div class="space-y-8">
+  <section class="rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 p-6 text-white shadow-sm">
+    <p class="text-sm text-indigo-100">Welcome back</p>
+    <h1 class="mt-1 text-2xl font-semibold sm:text-3xl">Referral Dashboard</h1>
+    <div class="mt-4 grid gap-3 text-sm sm:grid-cols-2">
+      <p><span class="font-medium text-indigo-100">Email:</span> <%= @user.email %></p>
+      <p>
+        <span class="font-medium text-indigo-100">Referral Code:</span>
+        <span class="inline-flex rounded-md bg-white/15 px-2 py-0.5 font-semibold tracking-wide"><%= @referral_code&.code || "N/A" %></span>
+      </p>
+    </div>
+  </section>
+
+  <section class="grid gap-4 sm:grid-cols-3">
+    <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+      <p class="text-sm text-slate-500">Available Balance</p>
+      <p class="mt-2 text-2xl font-semibold text-slate-900"><%= @user.available_cents %> <span class="text-sm font-medium text-slate-500">cents</span></p>
+    </div>
+    <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+      <p class="text-sm text-slate-500">Pending Balance</p>
+      <p class="mt-2 text-2xl font-semibold text-slate-900"><%= @user.pending_cents %> <span class="text-sm font-medium text-slate-500">cents</span></p>
+    </div>
+    <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+      <p class="text-sm text-slate-500">Total Earned</p>
+      <p class="mt-2 text-2xl font-semibold text-slate-900"><%= @user.total_earned_cents %> <span class="text-sm font-medium text-slate-500">cents</span></p>
+    </div>
+  </section>
+
+  <section class="rounded-xl border border-slate-200 bg-white shadow-sm">
+    <div class="border-b border-slate-200 px-5 py-4">
+      <h2 class="text-lg font-semibold text-slate-900">Request Cashout</h2>
+      <p class="mt-1 text-sm text-slate-500">Submit a payout request from your available balance.</p>
+    </div>
+
+    <div class="px-5 py-5">
+      <%= form_with model: @cashout_request, url: cashout_requests_path, local: true, class: "grid gap-4 sm:grid-cols-3" do |f| %>
+        <div>
+          <%= f.label :amount_cents, "Amount (cents)", class: "mb-1 block text-sm font-medium text-slate-700" %>
+          <%= f.number_field :amount_cents, min: 1, required: true,
+                             class: "w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200" %>
+        </div>
+
+        <div>
+          <%= f.label :payout_method, class: "mb-1 block text-sm font-medium text-slate-700" %>
+          <%= f.select :payout_method,
+                       options_for_select([["GCash", "gcash"], ["Bank", "bank"]]),
+                       { include_blank: "Select method" },
+                       { required: true,
+                         class: "w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200" } %>
+        </div>
+
+        <div>
+          <%= f.label :payout_reference, "Payout Reference", class: "mb-1 block text-sm font-medium text-slate-700" %>
+          <%= f.text_field :payout_reference, required: true,
+                           placeholder: "0917xxxxxxx or bank account",
+                           class: "w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200" %>
+        </div>
+
+        <div class="sm:col-span-3">
+          <%= f.submit "Submit Cashout Request",
+                       class: "inline-flex items-center rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-500" %>
+        </div>
+      <% end %>
+    </div>
+  </section>
+
+  <section class="rounded-xl border border-slate-200 bg-white shadow-sm">
+    <div class="flex items-center justify-between border-b border-slate-200 px-5 py-4">
+      <h2 class="text-lg font-semibold text-slate-900">Recent Ledger Entries</h2>
+      <span class="text-xs text-slate-500">Latest 20</span>
+    </div>
+
+    <% if @recent_ledger_entries.any? %>
+      <div class="overflow-x-auto">
+        <table class="min-w-full text-left text-sm">
+          <thead class="bg-slate-50 text-slate-600">
+            <tr>
+              <th class="px-5 py-3 font-medium">Occurred At</th>
+              <th class="px-5 py-3 font-medium">Type</th>
+              <th class="px-5 py-3 font-medium">Account</th>
+              <th class="px-5 py-3 font-medium">Amount</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100">
+            <% @recent_ledger_entries.each do |entry| %>
+              <tr class="hover:bg-slate-50/60">
+                <td class="px-5 py-3 text-slate-700"><%= entry.occurred_at %></td>
+                <td class="px-5 py-3">
+                  <span class="rounded-full bg-slate-100 px-2 py-1 text-xs font-medium text-slate-700"><%= entry.entry_type %></span>
+                </td>
+                <td class="px-5 py-3 text-slate-700"><%= entry.account_type %></td>
+                <td class="px-5 py-3 font-medium text-slate-900"><%= entry.amount_cents %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% else %>
+      <div class="px-5 py-8 text-sm text-slate-500">No ledger entries yet.</div>
+    <% end %>
+  </section>
+
+  <section class="rounded-xl border border-slate-200 bg-white shadow-sm">
+    <div class="flex items-center justify-between border-b border-slate-200 px-5 py-4">
+      <h2 class="text-lg font-semibold text-slate-900">Recent Cashouts</h2>
+      <span class="text-xs text-slate-500">Latest 10</span>
+    </div>
+
+    <% if @recent_cashouts.any? %>
+      <div class="overflow-x-auto">
+        <table class="min-w-full text-left text-sm">
+          <thead class="bg-slate-50 text-slate-600">
+            <tr>
+              <th class="px-5 py-3 font-medium">Created At</th>
+              <th class="px-5 py-3 font-medium">Status</th>
+              <th class="px-5 py-3 font-medium">Amount</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100">
+            <% @recent_cashouts.each do |cashout| %>
+              <tr class="hover:bg-slate-50/60">
+                <td class="px-5 py-3 text-slate-700"><%= cashout.created_at %></td>
+                <td class="px-5 py-3">
+                  <span class="rounded-full bg-indigo-50 px-2 py-1 text-xs font-medium text-indigo-700"><%= cashout.status %></span>
+                </td>
+                <td class="px-5 py-3 font-medium text-slate-900"><%= cashout.amount_cents %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% else %>
+      <div class="px-5 py-8 text-sm text-slate-500">No cashout requests yet.</div>
+    <% end %>
+  </section>
+</div>
