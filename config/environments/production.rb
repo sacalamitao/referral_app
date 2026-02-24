@@ -20,8 +20,9 @@ Rails.application.configure do
   # key such as config/credentials/production.key. This key is used to decrypt credentials (and other encrypted files).
   # config.require_master_key = true
 
-  # Disable serving static files from `public/`, relying on NGINX/Apache to do so instead.
-  # config.public_file_server.enabled = false
+  # Serve static files from `public/` when running on app platforms
+  # (e.g. Heroku/Render) that set RAILS_SERVE_STATIC_FILES.
+  config.public_file_server.enabled = ENV["RAILS_SERVE_STATIC_FILES"].present?
 
   # Tailwind v4 emits modern CSS (for example: `@media (width >= 40rem)`) that
   # SassC cannot parse when used as a generic compressor.
