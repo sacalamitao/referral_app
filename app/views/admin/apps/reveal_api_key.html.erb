@@ -1,0 +1,20 @@
+<div class="panel">
+  <h3>API key generated</h3>
+  <div class="panel_contents">
+    <p><strong>Save this key now.</strong> For security, it is shown only once.</p>
+
+    <pre id="raw-api-key" style="padding: 12px; background: #111827; color: #f9fafb; border-radius: 6px; overflow-x: auto;"><%= @raw_api_key %></pre>
+
+    <div style="display: flex; gap: 8px; margin-top: 12px;">
+      <button type="button" class="button" onclick="navigator.clipboard.writeText(document.getElementById('raw-api-key').textContent)">
+        Copy API key
+      </button>
+
+      <%= link_to "Back to app", admin_app_path(@app), class: "button" %>
+    </div>
+
+    <p style="margin-top: 12px; color: #b91c1c;">
+      If you lose this key, rotate it from the app details page.
+    </p>
+  </div>
+</div>
