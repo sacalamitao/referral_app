@@ -6,7 +6,6 @@ module Rewards
 
       ActiveRecord::Base.transaction do
         Ledger::PostEntry.call(
-          app: reward_transaction.app,
           user: reward_transaction.user,
           entry_type: :debit,
           account_type: :pending_balance,
@@ -15,7 +14,6 @@ module Rewards
         )
 
         Ledger::PostEntry.call(
-          app: reward_transaction.app,
           user: reward_transaction.user,
           entry_type: :credit,
           account_type: :available_balance,
@@ -29,4 +27,3 @@ module Rewards
     end
   end
 end
-

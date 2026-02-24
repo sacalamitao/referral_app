@@ -8,7 +8,6 @@ module Api
           result = WebhookEvents::Ingest.call(
             payload: payload,
             raw_body: request.raw_post,
-            api_key: request.headers["X-Api-Key"],
             signature: request.headers["X-Signature"],
             timestamp: request.headers["X-Timestamp"]
           )
@@ -30,4 +29,3 @@ module Api
     end
   end
 end
-

@@ -12,9 +12,6 @@ module Cashouts
       return ServiceResult.failure(error_code: "invalid_payout_method", error_message: "Unsupported payout method") unless SUPPORTED_PAYOUT_METHODS.include?(method)
       return ServiceResult.failure(error_code: "missing_payout_reference", error_message: "Payout reference is required") if reference.blank?
 
-      app = resolve_app_for_user(user)
-      return ServiceResult.failure(error_code: "missing_user_app", error_message: "No app context found for this user") if app.nil?
-
       cashout_request = nil
       insufficient_balance = false
 
@@ -34,7 +31,6 @@ module Cashouts
         )
 
         Ledger::PostEntry.call(
-          app: app,
           user: user,
           entry_type: :debit,
           account_type: :available_balance,
@@ -43,7 +39,6 @@ module Cashouts
         )
 
         Ledger::PostEntry.call(
-          app: app,
           user: user,
           entry_type: :credit,
           account_type: :cashout,
@@ -60,13 +55,6 @@ module Cashouts
       ServiceResult.success(cashout_request: cashout_request)
     rescue ActiveRecord::RecordInvalid => e
       ServiceResult.failure(error_code: "invalid_cashout_request", error_message: e.record.errors.full_messages.to_sentence)
-    end
-
-    def self.resolve_app_for_user(user)
-      app_ids = user.reward_transactions.distinct.order(:app_id).limit(2).pluck(:app_id).compact
-      return nil if app_ids.empty? || app_ids.many?
-
-      App.find_by(id: app_ids.first)
     end
   end
 end

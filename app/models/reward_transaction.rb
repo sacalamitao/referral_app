@@ -2,7 +2,6 @@ class RewardTransaction < ApplicationRecord
   enum :event_type, { registration: 0, subscription: 1 }
   enum :status, { pending: 0, available: 1, reversed: 2 }
 
-  belongs_to :app
   belongs_to :referral
   belongs_to :user
   belongs_to :source_event, class_name: "WebhookEvent", optional: true, inverse_of: :reward_transactions
@@ -15,7 +14,6 @@ class RewardTransaction < ApplicationRecord
 
   def self.ransackable_attributes(_auth_object = nil)
     %w[
-      app_id
       available_at
       created_at
       event_type
@@ -33,6 +31,6 @@ class RewardTransaction < ApplicationRecord
   end
 
   def self.ransackable_associations(_auth_object = nil)
-    %w[app ledger_entries referral source_event user]
+    %w[ledger_entries referral source_event user]
   end
 end

@@ -1,8 +1,7 @@
 module Ledger
   class PostEntry
-    def self.call(app:, user:, entry_type:, account_type:, amount_cents:, reference:, occurred_at: Time.current, created_by: nil, metadata: {})
+    def self.call(user:, entry_type:, account_type:, amount_cents:, reference:, occurred_at: Time.current, created_by: nil, metadata: {})
       LedgerEntry.create!(
-        app: app,
         user: user,
         entry_type: entry_type,
         account_type: account_type,
@@ -15,4 +14,3 @@ module Ledger
     end
   end
 end
-

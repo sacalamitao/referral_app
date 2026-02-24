@@ -4,16 +4,11 @@ module Cashouts
       return ServiceResult.success(cashout_request: cashout_request) if cashout_request.paid?
       return ServiceResult.failure(error_code: "invalid_state", error_message: "Cashout must be approved before payout") unless cashout_request.approved?
 
-      app_id = LedgerEntry.where(reference: cashout_request).order(:id).pick(:app_id)
-      app = App.find_by(id: app_id)
-      return ServiceResult.failure(error_code: "missing_app_context", error_message: "Unable to resolve app context for cashout") if app.nil?
-
       ActiveRecord::Base.transaction do
         cashout_request.lock!
         return ServiceResult.success(cashout_request: cashout_request) if cashout_request.paid?
 
         Ledger::PostEntry.call(
-          app: app,
           user: cashout_request.user,
           entry_type: :debit,
           account_type: :cashout,

@@ -4,7 +4,7 @@
 
 ```text
 3rd-Party Apps
-  -> POST /api/v1/webhooks/events (API key + HMAC signature)
+  -> POST /api/v1/webhooks/events (HMAC signature)
   -> Rails API Controllers (thin)
   -> Service Objects (orchestration + business rules)
   -> Sidekiq Jobs (async processing / retries)
@@ -13,23 +13,23 @@
 
 Admin Users
   -> ActiveAdmin
-  -> User/App/Reward/Cashout/Webhook oversight
+  -> User/SystemConfig/Reward/Cashout/Webhook oversight
 ```
 
-## 2) Multi-Tenant Design
+## 2) Single-Tenant Design
 
-- Tenant boundary: `apps` table.
-- External identity uniqueness is app-scoped: unique `(app_id, external_user_id)`.
-- Referral relationships and rewards are app-scoped.
-- Per-app reward rules support flat and percentage reward modes.
+- The platform uses one canonical `system_configs` row.
+- Webhook intake and signing are controlled by singleton `system_configs.webhook_secret`.
+- Referral and reward records are global to the single-tenant deployment.
+- Reward rules are global by event type.
 
 ## 3) Core Entities
 
 - `User`: platform referrer account.
-- `App`: third-party client credentials and status.
+- `SystemConfig`: singleton webhook/security configuration.
 - `ReferralCode`: unique referral code per user.
-- `Referral`: app-scoped referred external user.
-- `RewardRule`: app-scoped rules by event type.
+- `Referral`: referred external user.
+- `RewardRule`: rules by event type.
 - `RewardTransaction`: immutable reward record.
 - `LedgerEntry`: accounting source-of-truth rows.
 - `CashoutRequest`: payout lifecycle.
@@ -38,16 +38,16 @@ Admin Users
 
 ## 4) Security Controls
 
-- API key authentication via hashed key lookup.
+- Singleton config resolution via `SystemConfig.current`.
 - HMAC SHA256 webhook signature verification with secure compare.
-- Idempotency uniqueness constraint `(app_id, key)`.
+- Idempotency uniqueness constraint `(key)`.
 - Replay prevention using request timestamp window.
 - Strong params + event payload validation.
 - Filter sensitive parameters from logs.
 
 ## 5) Event Processing Flow
 
-1. Authenticate app via API key.
+1. Resolve singleton system config.
 2. Verify HMAC signature.
 3. Validate timestamp freshness.
 4. Persist `webhook_events` as received.
@@ -75,7 +75,7 @@ Admin Users
 - Horizontal Rails + Sidekiq workers.
 - Partition heavy append tables (`webhook_events`, `ledger_entries`) in future.
 - Add read replicas for analytics/admin-heavy reads.
-- Per-app throttling to isolate noisy tenants.
+- Global webhook throttling for single-tenant ingress.
 
 ## 9) SaaS Monetization
 
@@ -83,4 +83,3 @@ Admin Users
 - Growth: higher quota, richer reports.
 - Pro: advanced rules, fraud controls.
 - Enterprise: SSO/SAML, dedicated workers, SLA.
-

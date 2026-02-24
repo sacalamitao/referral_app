@@ -4,7 +4,6 @@ ActiveAdmin.register WebhookEvent do
   index do
     selectable_column
     id_column
-    column :app
     column :event_type
     column :status
     column :idempotency_key_raw
@@ -13,7 +12,6 @@ ActiveAdmin.register WebhookEvent do
     actions
   end
 
-  filter :app
   filter :event_type
   filter :status
   filter :received_at
@@ -21,7 +19,6 @@ ActiveAdmin.register WebhookEvent do
   show do
     attributes_table do
       row :id
-      row :app
       row :event_type
       row :status
       row :idempotency_key_raw
@@ -36,4 +33,3 @@ ActiveAdmin.register WebhookEvent do
     end
   end
 end
-

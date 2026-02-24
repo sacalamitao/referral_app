@@ -3,8 +3,6 @@ class RewardRule < ApplicationRecord
   enum :reward_mode, { flat: 0, percentage: 1 }
   enum :recurrence_mode, { one_time: 0, recurring: 1 }
 
-  belongs_to :app
-
   validates :event_type, :reward_mode, :recurrence_mode, presence: true
   validates :pending_days, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
   validates :amount_cents,
@@ -27,7 +25,6 @@ class RewardRule < ApplicationRecord
       active_from
       active_to
       amount_cents
-      app_id
       created_at
       enabled
       event_type
@@ -41,7 +38,7 @@ class RewardRule < ApplicationRecord
   end
 
   def self.ransackable_associations(_auth_object = nil)
-    %w[app]
+    %w[]
   end
 
   private

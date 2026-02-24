@@ -2,24 +2,24 @@ module WebhookEvents
   class Ingest
     SUPPORTED_EVENT_TYPES = %w[registration subscription].freeze
 
-    def self.call(payload:, raw_body:, api_key:, signature:, timestamp:)
-      new(payload:, raw_body:, api_key:, signature:, timestamp:).call
+    def self.call(payload:, raw_body:, signature:, timestamp:)
+      new(payload:, raw_body:, signature:, timestamp:).call
     end
 
-    def initialize(payload:, raw_body:, api_key:, signature:, timestamp:)
+    def initialize(payload:, raw_body:, signature:, timestamp:)
       @payload = payload
       @raw_body = raw_body
-      @api_key = api_key
       @signature = signature
       @timestamp = timestamp
     end
 
     def call
-      app = WebhookAuth::ResolveAppFromApiKey.call(raw_api_key: api_key)
-      return ServiceResult.failure(error_code: "unauthorized", error_message: "invalid api key", http_status: :unauthorized) if app.blank? || app.inactive?
+      config = WebhookAuth::ResolveSystemConfig.call
+      return ServiceResult.failure(error_code: "config_not_found", error_message: "system config is not configured", http_status: :service_unavailable) if config.blank?
+      return ServiceResult.failure(error_code: "unauthorized", error_message: "webhook intake is inactive", http_status: :unauthorized) unless config.active?
 
       signature_result = WebhookAuth::VerifySignature.call(
-        app: app,
+        config: config,
         payload: raw_body,
         timestamp: timestamp,
         signature: signature
@@ -37,13 +37,13 @@ module WebhookEvents
 
       idempotency_key = payload["idempotency_key"].to_s
       request_hash = Digest::SHA256.hexdigest(raw_body)
-      idempotency = Idempotency::LockAndFetch.call(app: app, key: idempotency_key, request_hash: request_hash)
+      idempotency = Idempotency::LockAndFetch.call(key: idempotency_key, request_hash: request_hash)
 
       if idempotency.error_code.present?
         return ServiceResult.failure(error_code: idempotency.error_code, error_message: "idempotency key conflict", http_status: :conflict)
       end
 
-      existing = WebhookEvent.find_by(app: app, idempotency_key_raw: idempotency_key)
+      existing = WebhookEvent.find_by(idempotency_key_raw: idempotency_key)
       if existing.present?
         WebhookProcessJob.perform_later(existing.id) unless existing.processed?
 
@@ -55,7 +55,6 @@ module WebhookEvents
       end
 
       event = WebhookEvent.create!(
-        app: app,
         event_type: event_type,
         idempotency_key_raw: idempotency_key,
         request_signature: signature,
@@ -77,6 +76,6 @@ module WebhookEvents
 
     private
 
-    attr_reader :payload, :raw_body, :api_key, :signature, :timestamp
+    attr_reader :payload, :raw_body, :signature, :timestamp
   end
 end

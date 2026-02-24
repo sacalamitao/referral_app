@@ -8,7 +8,6 @@ class LedgerEntry < ApplicationRecord
     reversal: 4
   }
 
-  belongs_to :app
   belongs_to :user
   belongs_to :reference, polymorphic: true, optional: true
   belongs_to :created_by, polymorphic: true, optional: true
@@ -20,7 +19,6 @@ class LedgerEntry < ApplicationRecord
     %w[
       account_type
       amount_cents
-      app_id
       created_at
       created_by_id
       created_by_type
@@ -35,6 +33,6 @@ class LedgerEntry < ApplicationRecord
   end
 
   def self.ransackable_associations(_auth_object = nil)
-    %w[app created_by reference user]
+    %w[created_by reference user]
   end
 end

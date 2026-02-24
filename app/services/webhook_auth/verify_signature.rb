@@ -4,12 +4,12 @@ module WebhookAuth
 
     Result = Struct.new(:success?, :error_code, :error_message, keyword_init: true)
 
-    def self.call(app:, payload:, timestamp:, signature:)
-      new(app:, payload:, timestamp:, signature:).call
+    def self.call(config:, payload:, timestamp:, signature:)
+      new(config:, payload:, timestamp:, signature:).call
     end
 
-    def initialize(app:, payload:, timestamp:, signature:)
-      @app = app
+    def initialize(config:, payload:, timestamp:, signature:)
+      @config = config
       @payload = payload.to_s
       @timestamp = timestamp.to_i
       @signature = signature.to_s
@@ -19,7 +19,7 @@ module WebhookAuth
       return Result.new(success?: false, error_code: "missing_signature", error_message: "missing signature") if signature.blank?
       return Result.new(success?: false, error_code: "expired_timestamp", error_message: "timestamp is outside allowed window") unless timestamp_fresh?
 
-      expected = OpenSSL::HMAC.hexdigest("SHA256", app.webhook_secret, signing_payload)
+      expected = OpenSSL::HMAC.hexdigest("SHA256", config.webhook_secret, signing_payload)
       ok = ActiveSupport::SecurityUtils.secure_compare(expected, signature)
 
       if ok
@@ -31,7 +31,7 @@ module WebhookAuth
 
     private
 
-    attr_reader :app, :payload, :timestamp, :signature
+    attr_reader :config, :payload, :timestamp, :signature
 
     def signing_payload
       "#{timestamp}.#{payload}"
@@ -44,4 +44,3 @@ module WebhookAuth
     end
   end
 end
-

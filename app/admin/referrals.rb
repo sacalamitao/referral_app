@@ -4,7 +4,6 @@ ActiveAdmin.register Referral do
   index do
     selectable_column
     id_column
-    column :app
     column :referrer_user
     column :external_user_id
     column :status
@@ -12,9 +11,7 @@ ActiveAdmin.register Referral do
     actions
   end
 
-  filter :app
   filter :referrer_user
   filter :status
   filter :external_user_id
 end
-
