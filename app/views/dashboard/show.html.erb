@@ -1,43 +1,112 @@
-<div class="space-y-8">
-  <section class="rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 p-6 text-white shadow-sm">
-    <p class="text-sm text-indigo-100">Welcome back</p>
-    <h1 class="mt-1 text-2xl font-semibold sm:text-3xl">Referral Dashboard</h1>
-    <div class="mt-4 grid gap-3 text-sm sm:grid-cols-2">
-      <p><span class="font-medium text-indigo-100">Email:</span> <%= @user.email %></p>
-      <p>
-        <span class="font-medium text-indigo-100">Referral Code:</span>
-        <span class="inline-flex rounded-md bg-white/15 px-2 py-0.5 font-semibold tracking-wide"><%= @referral_code&.code || "N/A" %></span>
-      </p>
+<% content_for :head do %>
+  <script>
+    document.addEventListener("turbo:load", () => {
+      document.querySelectorAll("[data-copy-referral-code]").forEach((button) => {
+        if (button.dataset.bound === "true") return;
+        button.dataset.bound = "true";
+
+        button.addEventListener("click", async () => {
+          const code = button.dataset.code || "";
+          if (!code) return;
+
+          try {
+            await navigator.clipboard.writeText(code);
+            const label = button.querySelector("[data-copy-label]");
+            if (!label) return;
+
+            const previous = label.textContent;
+            label.textContent = "Copied";
+            setTimeout(() => {
+              label.textContent = previous;
+            }, 1200);
+          } catch (_) {
+            // no-op
+          }
+        });
+      });
+    });
+  </script>
+<% end %>
+
+<div class="space-y-8 rounded-2xl bg-slate-100 p-4 sm:p-6">
+  <section class="rounded-2xl border p-6 text-white shadow-lg" style="background-color: #312e81; border-color: #312e81;">
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div>
+        <p class="text-sm text-white">Welcome back</p>
+        <h1 class="mt-1 text-2xl font-semibold sm:text-4xl">Referral Dashboard</h1>
+        <p class="mt-1 text-sm text-white">Email: <%= @user.email %></p>
+      </div>
+
+      <div class="flex w-full items-center justify-between gap-3 rounded-xl border border-dashed px-4 py-3 sm:max-w-xl" style="border-color: #818cf8; background-color: rgba(99, 102, 241, 0.25);">
+        <div class="flex items-center gap-3">
+          <span class="text-lg" aria-hidden="true">🔗</span>
+          <div>
+            <p class="text-xs font-medium uppercase tracking-wider text-indigo-100">Your referral code</p>
+            <p class="text-xl font-semibold tracking-wider text-white"><%= @referral_code&.code || "N/A" %></p>
+          </div>
+        </div>
+
+        <button type="button"
+                data-copy-referral-code
+                data-code="<%= @referral_code&.code.to_s %>"
+                class="rounded-lg px-3 py-1.5 text-sm font-semibold text-white transition" style="background-color: #4f46e5;">
+          <span data-copy-label>Copy</span>
+        </button>
+      </div>
     </div>
   </section>
 
   <section class="grid gap-4 sm:grid-cols-3">
-    <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-      <p class="text-sm text-slate-500">Available Balance</p>
-      <p class="mt-2 text-2xl font-semibold text-slate-900"><%= @user.available_cents %> <span class="text-sm font-medium text-slate-500">cents</span></p>
+    <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+      <div class="flex items-start justify-between">
+        <p class="text-sm font-medium text-slate-500">Available Balance</p>
+        <span class="text-amber-500" aria-hidden="true">🧾</span>
+      </div>
+      <p class="mt-2 text-5xl font-semibold leading-none text-slate-900"><%= number_to_currency(@user.available_cents.to_f / 100, precision: 2) %></p>
+      <p class="mt-1 text-lg text-slate-400">USD</p>
     </div>
-    <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-      <p class="text-sm text-slate-500">Pending Balance</p>
-      <p class="mt-2 text-2xl font-semibold text-slate-900"><%= @user.pending_cents %> <span class="text-sm font-medium text-slate-500">cents</span></p>
+
+    <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+      <div class="flex items-start justify-between">
+        <p class="text-sm font-medium text-slate-500">Pending Balance</p>
+        <span class="text-amber-500" aria-hidden="true">⏳</span>
+      </div>
+      <p class="mt-2 text-5xl font-semibold leading-none text-slate-900"><%= number_to_currency(@user.pending_cents.to_f / 100, precision: 2) %></p>
+      <p class="mt-1 text-lg text-slate-400">USD</p>
     </div>
-    <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-      <p class="text-sm text-slate-500">Total Earned</p>
-      <p class="mt-2 text-2xl font-semibold text-slate-900"><%= @user.total_earned_cents %> <span class="text-sm font-medium text-slate-500">cents</span></p>
+
+    <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+      <div class="flex items-start justify-between">
+        <p class="text-sm font-medium text-slate-500">Total Earned</p>
+        <span class="text-amber-500" aria-hidden="true">🪙</span>
+      </div>
+      <p class="mt-2 text-5xl font-semibold leading-none text-slate-900"><%= number_with_precision(@user.total_earned_cents.to_f / 100, precision: 2) %></p>
+      <p class="mt-1 text-lg text-slate-400">cents</p>
     </div>
   </section>
 
   <section class="rounded-xl border border-slate-200 bg-white shadow-sm">
     <div class="border-b border-slate-200 px-5 py-4">
-      <h2 class="text-lg font-semibold text-slate-900">Request Cashout</h2>
+      <h2 class="text-3xl font-semibold text-slate-800">Withdrawal Wallet</h2>
       <p class="mt-1 text-sm text-slate-500">Submit a payout request from your available balance.</p>
     </div>
 
+    <% min_cashout_cents = 500 %>
+    <% has_minimum_balance = @user.available_cents.to_i >= min_cashout_cents %>
+
     <div class="px-5 py-5">
-      <%= form_with model: @cashout_request, url: cashout_requests_path, local: true, class: "grid gap-4 sm:grid-cols-3" do |f| %>
+      <%= form_with model: @cashout_request, url: cashout_requests_path, local: true, class: "grid gap-4 sm:grid-cols-2" do |f| %>
         <div>
-          <%= f.label :amount_cents, "Amount (cents)", class: "mb-1 block text-sm font-medium text-slate-700" %>
-          <%= f.number_field :amount_cents, min: 1, required: true,
-                             class: "w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200" %>
+          <%= f.label :amount_cents, "Amount (USD)", class: "mb-1 block text-sm font-medium text-slate-700" %>
+          <div class="flex w-full items-center overflow-hidden rounded-lg border border-slate-300 bg-white text-sm">
+            <span class="px-3 py-2 text-slate-500">$</span>
+            <span class="border-l border-slate-200 px-2 py-2 text-slate-400">USD</span>
+            <%= f.number_field :amount_cents,
+                               min: min_cashout_cents,
+                               required: true,
+                               placeholder: "500",
+                               class: "w-full border-0 px-3 py-2 text-sm focus:outline-none focus:ring-0" %>
+          </div>
         </div>
 
         <div>
@@ -46,19 +115,29 @@
                        options_for_select([["GCash", "gcash"], ["Bank", "bank"]]),
                        { include_blank: "Select method" },
                        { required: true,
-                         class: "w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200" } %>
+                         class: "w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200" } %>
         </div>
 
-        <div>
+        <div class="sm:col-span-2">
           <%= f.label :payout_reference, "Payout Reference", class: "mb-1 block text-sm font-medium text-slate-700" %>
           <%= f.text_field :payout_reference, required: true,
                            placeholder: "0917xxxxxxx or bank account",
-                           class: "w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200" %>
+                           class: "w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200" %>
         </div>
 
-        <div class="sm:col-span-3">
-          <%= f.submit "Submit Cashout Request",
-                       class: "inline-flex items-center rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-500" %>
+        <div class="sm:col-span-2">
+          <div class="group relative inline-block">
+            <%= f.submit "Submit Cashout Request",
+                         disabled: !has_minimum_balance,
+                         class: "inline-flex items-center rounded-lg px-6 py-2.5 text-sm font-semibold text-white transition #{has_minimum_balance ? 'bg-emerald-500 hover:bg-emerald-600' : 'cursor-not-allowed bg-indigo-600/80'}" %>
+
+            <% unless has_minimum_balance %>
+              <div class="pointer-events-none absolute left-1/2 top-full z-20 mt-3 hidden w-max -translate-x-1/2 items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-xl group-hover:flex">
+                <span aria-hidden="true">🔒</span>
+                <span>Requires minimum <%= number_to_currency(min_cashout_cents / 100.0, precision: 2) %> balance</span>
+              </div>
+            <% end %>
+          </div>
         </div>
       <% end %>
     </div>
@@ -67,7 +146,7 @@
   <section class="rounded-xl border border-slate-200 bg-white shadow-sm">
     <div class="flex items-center justify-between border-b border-slate-200 px-5 py-4">
       <h2 class="text-lg font-semibold text-slate-900">Recent Ledger Entries</h2>
-      <span class="text-xs text-slate-500">Latest 20</span>
+      <span class="text-xs text-slate-500">Page <%= @ledger_page %> of <%= @ledger_total_pages %></span>
     </div>
 
     <% if @recent_ledger_entries.any? %>
@@ -95,6 +174,29 @@
           </tbody>
         </table>
       </div>
+
+      <% if @ledger_total_pages > 1 %>
+        <div class="flex items-center justify-between border-t border-slate-200 px-5 py-3 text-sm">
+          <span class="text-slate-500">Showing max 10 per page</span>
+          <div class="flex items-center gap-2">
+            <% if @ledger_page > 1 %>
+              <%= link_to "Previous",
+                          url_for(request.query_parameters.merge(ledger_page: @ledger_page - 1)),
+                          class: "rounded-lg border border-slate-300 px-3 py-1.5 font-medium text-slate-700 hover:bg-slate-50" %>
+            <% else %>
+              <span class="rounded-lg border border-slate-200 px-3 py-1.5 font-medium text-slate-300">Previous</span>
+            <% end %>
+
+            <% if @ledger_page < @ledger_total_pages %>
+              <%= link_to "Next",
+                          url_for(request.query_parameters.merge(ledger_page: @ledger_page + 1)),
+                          class: "rounded-lg border border-slate-300 px-3 py-1.5 font-medium text-slate-700 hover:bg-slate-50" %>
+            <% else %>
+              <span class="rounded-lg border border-slate-200 px-3 py-1.5 font-medium text-slate-300">Next</span>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
     <% else %>
       <div class="px-5 py-8 text-sm text-slate-500">No ledger entries yet.</div>
     <% end %>
@@ -103,7 +205,7 @@
   <section class="rounded-xl border border-slate-200 bg-white shadow-sm">
     <div class="flex items-center justify-between border-b border-slate-200 px-5 py-4">
       <h2 class="text-lg font-semibold text-slate-900">Recent Cashouts</h2>
-      <span class="text-xs text-slate-500">Latest 10</span>
+      <span class="text-xs text-slate-500">Page <%= @cashouts_page %> of <%= @cashouts_total_pages %></span>
     </div>
 
     <% if @recent_cashouts.any? %>
@@ -129,6 +231,29 @@
           </tbody>
         </table>
       </div>
+
+      <% if @cashouts_total_pages > 1 %>
+        <div class="flex items-center justify-between border-t border-slate-200 px-5 py-3 text-sm">
+          <span class="text-slate-500">Showing max 10 per page</span>
+          <div class="flex items-center gap-2">
+            <% if @cashouts_page > 1 %>
+              <%= link_to "Previous",
+                          url_for(request.query_parameters.merge(cashouts_page: @cashouts_page - 1)),
+                          class: "rounded-lg border border-slate-300 px-3 py-1.5 font-medium text-slate-700 hover:bg-slate-50" %>
+            <% else %>
+              <span class="rounded-lg border border-slate-200 px-3 py-1.5 font-medium text-slate-300">Previous</span>
+            <% end %>
+
+            <% if @cashouts_page < @cashouts_total_pages %>
+              <%= link_to "Next",
+                          url_for(request.query_parameters.merge(cashouts_page: @cashouts_page + 1)),
+                          class: "rounded-lg border border-slate-300 px-3 py-1.5 font-medium text-slate-700 hover:bg-slate-50" %>
+            <% else %>
+              <span class="rounded-lg border border-slate-200 px-3 py-1.5 font-medium text-slate-300">Next</span>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
     <% else %>
       <div class="px-5 py-8 text-sm text-slate-500">No cashout requests yet.</div>
     <% end %>
