@@ -9,6 +9,37 @@
       <%= render "devise/shared/error_messages", resource: resource %>
 
       <div>
+        <%= f.label :first_name, "First name", class: "block text-sm font-medium text-gray-900" %>
+        <div class="mt-2">
+          <%= f.text_field :first_name,
+                           autocomplete: "given-name",
+                           required: true,
+                           class: "block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm" %>
+        </div>
+      </div>
+
+      <div>
+        <%= f.label :last_name, "Last name", class: "block text-sm font-medium text-gray-900" %>
+        <div class="mt-2">
+          <%= f.text_field :last_name,
+                           autocomplete: "family-name",
+                           required: true,
+                           class: "block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm" %>
+        </div>
+      </div>
+
+      <div>
+        <%= f.label :contact_number, "Contact number", class: "block text-sm font-medium text-gray-900" %>
+        <div class="mt-2">
+          <%= f.telephone_field :contact_number,
+                                autocomplete: "tel",
+                                required: true,
+                                placeholder: "+63 9XX XXX XXXX",
+                                class: "block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm" %>
+        </div>
+      </div>
+
+      <div>
         <%= f.label :email, "Email address", class: "block text-sm font-medium text-gray-900" %>
         <div class="mt-2">
           <%= f.email_field :email,

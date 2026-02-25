@@ -17,6 +17,10 @@ class User < ApplicationRecord
 
   validates :available_cents, :pending_cents, :total_earned_cents,
             numericality: { only_integer: true, greater_than_or_equal_to: 0 }
+  validates :first_name, :last_name, presence: true
+  validates :contact_number, presence: true,
+                             length: { minimum: 7, maximum: 20 },
+                             format: { with: /\A[\d\s\-\+\(\)]+\z/, message: "is invalid" }
 
   after_create :ensure_active_referral_code!
 

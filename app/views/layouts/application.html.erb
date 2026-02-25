@@ -34,7 +34,9 @@
 
           <div class="flex items-center gap-2">
             <% if user_signed_in? %>
-              <%= link_to "Dashboard", authenticated_root_path, class: "rounded-lg px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100" %>
+              <p class="rounded-lg px-3 py-2 text-sm font-medium text-slate-700">
+                <%= current_user&.first_name.present? ? "Welcome Back #{current_user.first_name.to_s.strip.split.first.titleize}!" : "Welcome Back!" %>
+              </p>
               <%= button_to "Sign out", destroy_user_session_path, method: :delete,
                             class: "rounded-lg bg-slate-900 px-3 py-2 text-sm font-medium text-white hover:bg-slate-800" %>
             <% else %>
