@@ -25,7 +25,7 @@ gem "rack-attack"
 
 # Admin UI framework
 gem "activeadmin"
-gem "devise", "~> 4.9"
+gem "devise", "~> 5.0"
 gem "dartsass-rails"
 
 # Tailwind CSS for utility-first inline styling
