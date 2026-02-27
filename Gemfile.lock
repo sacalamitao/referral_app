@@ -486,6 +486,7 @@ DEPENDENCIES
   bootsnap
   brakeman
   capybara
+  connection_pool (>= 3.0.2)
   dartsass-rails
   debug
   devise (~> 4.9)
