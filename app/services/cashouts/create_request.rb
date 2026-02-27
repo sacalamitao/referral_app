@@ -1,6 +1,6 @@
 module Cashouts
   class CreateRequest
-    SUPPORTED_PAYOUT_METHODS = %w[gcash bank].freeze
+    SUPPORTED_PAYOUT_METHODS = %w[gcash bank paypal].freeze
 
     def self.call(user:, amount_cents:, payout_method:, payout_reference:)
       amount = amount_cents.to_i

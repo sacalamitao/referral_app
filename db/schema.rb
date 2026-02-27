@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_02_25_152200) do
+ActiveRecord::Schema[7.2].define(version: 2026_02_26_090500) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -52,6 +52,20 @@ ActiveRecord::Schema[7.2].define(version: 2026_02_25_152200) do
     t.jsonb "metadata", default: {}, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "payout_attempts", default: 0, null: false
+    t.datetime "payout_sent_at"
+    t.datetime "payout_failed_at"
+    t.string "payout_provider"
+    t.string "paypal_sender_batch_id"
+    t.string "paypal_payout_batch_id"
+    t.string "paypal_payout_item_id"
+    t.string "paypal_payout_status"
+    t.string "payout_last_error_code"
+    t.text "payout_last_error_message"
+    t.jsonb "payout_provider_response", default: {}, null: false
+    t.index ["paypal_payout_batch_id"], name: "index_cashout_requests_on_paypal_payout_batch_id"
+    t.index ["paypal_payout_item_id"], name: "index_cashout_requests_on_paypal_payout_item_id"
+    t.index ["paypal_sender_batch_id"], name: "index_cashout_requests_on_paypal_sender_batch_id", unique: true
     t.index ["reviewed_by_admin_user_id"], name: "index_cashout_requests_on_reviewed_by_admin_user_id"
     t.index ["status", "created_at"], name: "index_cashout_requests_on_status_and_created_at"
     t.index ["user_id", "status", "created_at"], name: "index_cashout_requests_on_user_id_and_status_and_created_at"
@@ -160,6 +174,10 @@ ActiveRecord::Schema[7.2].define(version: 2026_02_25_152200) do
     t.jsonb "config", default: {}, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "paypal_client_id"
+    t.string "paypal_client_secret"
+    t.string "paypal_mode", default: "sandbox", null: false
+    t.string "paypal_payout_currency", default: "USD", null: false
     t.index ["active"], name: "index_system_configs_on_active"
   end
 

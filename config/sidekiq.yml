@@ -1,0 +1,7 @@
+:concurrency: <%= Integer(ENV.fetch("SIDEKIQ_CONCURRENCY", 5)) %>
+:queues:
+  - critical
+  - default
+
+production:
+  :concurrency: <%= Integer(ENV.fetch("SIDEKIQ_CONCURRENCY", 5)) %>

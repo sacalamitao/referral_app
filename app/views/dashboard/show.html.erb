@@ -112,16 +112,16 @@
         <div>
           <%= f.label :payout_method, class: "mb-1 block text-sm font-medium text-slate-700" %>
           <%= f.select :payout_method,
-                       options_for_select([["GCash", "gcash"], ["Bank", "bank"]]),
+                       options_for_select([["PayPal", "paypal"], ["GCash", "gcash"], ["Bank", "bank"]]),
                        { include_blank: "Select method" },
                        { required: true,
-                         class: "w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200" } %>
+                          class: "w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200" } %>
         </div>
 
         <div class="sm:col-span-2">
           <%= f.label :payout_reference, "Payout Reference", class: "mb-1 block text-sm font-medium text-slate-700" %>
           <%= f.text_field :payout_reference, required: true,
-                           placeholder: "0917xxxxxxx or bank account",
+                           placeholder: "PayPal email, 0917xxxxxxx, or bank account",
                            class: "w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200" %>
         </div>
 

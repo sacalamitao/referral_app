@@ -33,6 +33,11 @@ gem "tailwindcss-rails"
 
 # Live reload for Hotwire development
 gem "hotwire-livereload"
+
+# Sidekiq 7.x runtime compatibility on Ruby 3.3.
+# `connection_pool` 3.x can break Sidekiq scheduler internals in production.
+gem "connection_pool", "~> 2.4"
+
 # Use Redis adapter to run Action Cable in production
 # gem "redis", ">= 4.0.1"
 
@@ -75,5 +80,3 @@ group :test do
   gem "capybara"
   gem "selenium-webdriver"
 end
-
-gem 'connection_pool', '>= 3.0.2'
