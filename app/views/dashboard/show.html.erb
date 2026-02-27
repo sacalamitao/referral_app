@@ -127,9 +127,14 @@
 
         <div class="sm:col-span-2">
           <div class="group relative inline-block">
-            <%= f.submit "Submit Cashout Request",
-                         disabled: !has_minimum_balance,
-                         class: "inline-flex items-center rounded-lg px-6 py-2.5 text-sm font-semibold text-white transition #{has_minimum_balance ? 'bg-emerald-500 hover:bg-emerald-600' : 'cursor-not-allowed bg-indigo-600/80'}" %>
+            <% if has_minimum_balance %>
+              <%= f.submit "Submit Cashout Request",
+                           class: "inline-flex items-center rounded-lg bg-emerald-500 px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-600" %>
+            <% else %>
+              <%= f.submit "Submit Cashout Request",
+                           disabled: true,
+                           class: "inline-flex cursor-not-allowed items-center rounded-lg bg-indigo-600/80 px-6 py-2.5 text-sm font-semibold text-white transition" %>
+            <% end %>
 
             <% unless has_minimum_balance %>
               <div class="pointer-events-none absolute left-1/2 top-full z-20 mt-3 hidden w-max -translate-x-1/2 items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-xl group-hover:flex">
