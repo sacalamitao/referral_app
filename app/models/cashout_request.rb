@@ -9,6 +9,9 @@ class CashoutRequest < ApplicationRecord
     payout_failed: 6
   }
 
+  # Explicit attribute type keeps enum initialization stable during deploy windows
+  # where app code may boot before a migration has finished on the target host.
+  attribute :payout_provider, :string
   enum :payout_provider, { paypal: "paypal" }, prefix: true
 
   belongs_to :user
