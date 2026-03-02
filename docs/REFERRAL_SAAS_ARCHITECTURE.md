@@ -57,6 +57,22 @@ Admin Users
 8. Create `reward_transactions` and `ledger_entries` atomically.
 9. Mark webhook event status.
 
+### Webhook Payload Contract (Current)
+
+- Common fields:
+  - `event_type`: `registration` or `subscription`
+  - `idempotency_key`: unique dedupe key
+  - `referred_user_email` (optional): email of referred user for reporting/display
+- Registration fields:
+  - `referral_code`
+  - `external_user_id`
+- Subscription fields:
+  - `external_user_id`
+  - `transaction_id`
+  - `amount`
+
+Backward compatibility: `referred_user_email` is optional and processing remains valid when omitted.
+
 ## 6) Ledger Rules
 
 - Ledger is append-only.

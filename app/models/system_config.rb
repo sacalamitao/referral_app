@@ -36,6 +36,14 @@ class SystemConfig < ApplicationRecord
     []
   end
 
+  def paypal_base_url
+    paypal_mode == "live" ? "https://api-m.paypal.com" : "https://api-m.sandbox.paypal.com"
+  end
+
+  def paypal_configured?
+    paypal_client_id.present? && paypal_client_secret.present?
+  end
+
   private
 
   def ensure_defaults
@@ -44,14 +52,6 @@ class SystemConfig < ApplicationRecord
     self.paypal_mode ||= "sandbox"
     self.paypal_payout_currency ||= "USD"
     self.active = true if active.nil?
-  end
-
-  def paypal_base_url
-    paypal_mode == "live" ? "https://api-m.paypal.com" : "https://api-m.sandbox.paypal.com"
-  end
-
-  def paypal_configured?
-    paypal_client_id.present? && paypal_client_secret.present?
   end
 
   def single_row_guard

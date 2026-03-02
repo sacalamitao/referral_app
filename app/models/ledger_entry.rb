@@ -35,4 +35,16 @@ class LedgerEntry < ApplicationRecord
   def self.ransackable_associations(_auth_object = nil)
     %w[created_by reference user]
   end
+
+  def reward_transaction_reference
+    reference if reference.is_a?(RewardTransaction)
+  end
+
+  def reward_source
+    reward_transaction_reference&.event_type&.to_s
+  end
+
+  def referred_user_email
+    reward_transaction_reference&.metadata&.dig("referred_user_email")&.to_s&.strip&.presence
+  end
 end

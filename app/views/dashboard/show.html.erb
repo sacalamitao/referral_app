@@ -95,7 +95,11 @@
     <% has_minimum_balance = @user.available_cents.to_i >= min_cashout_cents %>
 
     <div class="px-5 py-5">
-      <%= form_with model: @cashout_request, url: cashout_requests_path, local: true, class: "grid gap-4 sm:grid-cols-2" do |f| %>
+      <%= form_with model: @cashout_request,
+                    url: cashout_requests_path,
+                    local: true,
+                    id: "cashout-request-form",
+                    class: "grid gap-4 sm:grid-cols-2" do |f| %>
         <div>
           <%= f.label :amount_cents, "Amount (USD)", class: "mb-1 block text-sm font-medium text-slate-700" %>
           <div class="flex w-full items-center overflow-hidden rounded-lg border border-slate-300 bg-white text-sm">
@@ -125,24 +129,19 @@
                            class: "w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200" %>
         </div>
 
-        <div class="sm:col-span-2">
-          <div class="group relative inline-block">
-            <% if has_minimum_balance %>
-              <%= f.submit "Submit Cashout Request",
-                           class: "inline-flex items-center rounded-lg bg-emerald-500 px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-600" %>
-            <% else %>
-              <%= f.submit "Submit Cashout Request",
-                           disabled: true,
-                           class: "inline-flex cursor-not-allowed items-center rounded-lg bg-indigo-600/80 px-6 py-2.5 text-sm font-semibold text-white transition" %>
-            <% end %>
+        <div class="sm:col-span-2" style="margin-top: 12px;">
+          <input type="submit"
+                 value="Submit Cashout Request"
+                 <%= "disabled" unless has_minimum_balance %>
+                 style="display:block !important; visibility:visible !important; opacity:1 !important; background:<%= has_minimum_balance ? '#10b981' : '#6366f1' %>; color:#fff; border:0; border-radius:10px; padding:10px 20px; font-weight:600;" />
+        </div>
 
-            <% unless has_minimum_balance %>
-              <div class="pointer-events-none absolute left-1/2 top-full z-20 mt-3 hidden w-max -translate-x-1/2 items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-xl group-hover:flex">
-                <span aria-hidden="true">🔒</span>
-                <span>Requires minimum <%= number_to_currency(min_cashout_cents / 100.0, precision: 2) %> balance</span>
-              </div>
-            <% end %>
-          </div>
+      <% end %>
+
+      <% unless has_minimum_balance %>
+        <div class="mt-2 inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-700">
+          <span aria-hidden="true">🔒</span>
+          <span>Requires minimum <%= number_to_currency(min_cashout_cents / 100.0, precision: 2) %> balance</span>
         </div>
       <% end %>
     </div>
@@ -161,6 +160,8 @@
             <tr>
               <th class="px-5 py-3 font-medium">Occurred At</th>
               <th class="px-5 py-3 font-medium">Type</th>
+              <th class="px-5 py-3 font-medium">Reward Source</th>
+              <th class="px-5 py-3 font-medium">Referred User Email</th>
               <th class="px-5 py-3 font-medium">Account</th>
               <th class="px-5 py-3 font-medium">Amount</th>
             </tr>
@@ -172,6 +173,8 @@
                 <td class="px-5 py-3">
                   <span class="rounded-full bg-slate-100 px-2 py-1 text-xs font-medium text-slate-700"><%= entry.entry_type %></span>
                 </td>
+                <td class="px-5 py-3 text-slate-700"><%= entry.reward_source.presence || "—" %></td>
+                <td class="px-5 py-3 text-slate-700"><%= entry.referred_user_email.presence || "—" %></td>
                 <td class="px-5 py-3 text-slate-700"><%= entry.account_type %></td>
                 <td class="px-5 py-3 font-medium text-slate-900"><%= entry.amount_cents %></td>
               </tr>

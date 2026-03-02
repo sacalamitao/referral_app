@@ -21,7 +21,11 @@ module Rewards
         gross_cents: amount_cents,
         status: :available,
         available_at: Time.current,
-        metadata: { rule_id: rule.id }
+        metadata: {
+          rule_id: rule.id,
+          reward_source: "subscription",
+          referred_user_email: payload["referred_user_email"].to_s.strip.presence
+        }
       )
 
       Ledger::PostEntry.call(

@@ -30,7 +30,11 @@ module Rewards
         gross_cents: 0,
         status: pending_release ? :pending : :available,
         available_at: available_at,
-        metadata: { rule_id: rule.id }
+        metadata: {
+          rule_id: rule.id,
+          reward_source: "registration",
+          referred_user_email: payload["referred_user_email"].to_s.strip.presence
+        }
       )
 
       Ledger::PostEntry.call(

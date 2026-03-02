@@ -16,11 +16,19 @@ module Payments
         result = client.get(path: "/v1/reporting/balances", token: token_result.data.fetch(:token))
         return result unless result.success?
 
-        balances = result.data.fetch(:payload).fetch("balances", [])
-        usd_balance = balances.find { |item| item.dig("currency", "currency_code") == "USD" }
+        payload = result.data.fetch(:payload, {})
+        raw_balances = payload.is_a?(Hash) ? payload.fetch("balances", []) : []
+        balances = Array(raw_balances).select { |item| item.is_a?(Hash) }
+
+        usd_balance = balances.find do |item|
+          currency = item["currency"]
+          currency.is_a?(Hash) && currency["currency_code"].to_s == "USD"
+        end
+
         return ServiceResult.failure(error_code: "paypal_balance_unavailable", error_message: "PayPal USD balance is unavailable") if usd_balance.blank?
 
-        available_value = usd_balance.dig("primary", "value").to_f
+        primary = usd_balance["primary"]
+        available_value = primary.is_a?(Hash) ? primary["value"].to_f : 0.0
         available_cents = (available_value * 100).round
 
         ServiceResult.success(
