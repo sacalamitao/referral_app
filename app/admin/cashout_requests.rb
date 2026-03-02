@@ -64,6 +64,16 @@ ActiveAdmin.register CashoutRequest do
     end
   end
 
+  member_action :refresh_paypal_status, method: :put do
+    result = Cashouts::SyncPaypalPayoutStatus.call(cashout_request: resource, actor: current_admin_user)
+
+    if result.success?
+      redirect_to resource_path, notice: "PayPal payout status refreshed"
+    else
+      redirect_to resource_path, alert: result.error_message
+    end
+  end
+
   action_item :approve, only: :show, if: proc { resource.requested? } do
     link_to "Approve", approve_admin_cashout_request_path(resource), method: :put
   end
@@ -90,6 +100,10 @@ ActiveAdmin.register CashoutRequest do
   action_item :reverse_failed, only: :show, if: proc { resource.payout_failed? } do
     link_to "Reverse Failed Payout", reverse_failed_admin_cashout_request_path(resource), method: :put,
             data: { confirm: "This will cancel the cashout and restore funds to user available balance. Continue?" }
+  end
+
+  action_item :refresh_paypal_status, only: :show, if: proc { resource.payout_method == "paypal" && resource.payout_processing? } do
+    link_to "Refresh PayPal Status", refresh_paypal_status_admin_cashout_request_path(resource), method: :put
   end
 
   show do

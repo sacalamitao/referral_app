@@ -45,13 +45,14 @@ module Payments
         perform_request(uri, request)
       end
 
-      def post(path:, token:, body:)
+      def post(path:, token:, body:, idempotency_key: nil)
         return ServiceResult.failure(error_code: "paypal_not_configured", error_message: "PayPal credentials are not configured") unless configured?
 
         uri = URI.parse("#{system_config.paypal_base_url}#{path}")
         request = Net::HTTP::Post.new(uri)
         request["Authorization"] = "Bearer #{token}"
         request["Content-Type"] = "application/json"
+        request["PayPal-Request-Id"] = idempotency_key if idempotency_key.present?
         request.body = body.to_json
 
         perform_request(uri, request)
