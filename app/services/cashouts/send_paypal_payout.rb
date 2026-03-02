@@ -1,5 +1,8 @@
 module Cashouts
   class SendPaypalPayout
+    TERMINAL_SUCCESS_BATCH_STATUSES = %w[SUCCESS].freeze
+    TERMINAL_FAILED_BATCH_STATUSES = %w[DENIED CANCELED FAILED BLOCKED RETURNED REVERSED].freeze
+
     def self.call(cashout_request:, actor: nil)
       new(cashout_request: cashout_request, actor: actor).call
     end
@@ -13,7 +16,11 @@ module Cashouts
 
     def call
       return ServiceResult.failure(error_code: "invalid_payout_method", error_message: "Cashout is not configured for PayPal payout") unless cashout_request.payout_method == "paypal"
-      return ServiceResult.failure(error_code: "invalid_state", error_message: "Cashout must be approved before payout") unless cashout_request.approved? || cashout_request.payout_failed?
+      return ServiceResult.failure(error_code: "invalid_state", error_message: "Cashout must be approved before payout") unless cashout_request.approved? || cashout_request.payout_failed? || cashout_request.payout_processing?
+
+      if cashout_request.payout_processing? && cashout_request.paypal_payout_batch_id.present?
+        return Cashouts::SyncPaypalPayoutStatus.call(cashout_request: cashout_request, actor: actor)
+      end
 
       token_result = paypal_client.access_token
       return fail_cashout!(token_result) unless token_result.success?
@@ -21,8 +28,13 @@ module Cashouts
       payout_result = send_payout(token: token_result.data.fetch(:token))
       return fail_cashout!(payout_result) unless payout_result.success?
 
-      apply_paid_state!(payout_result.data.fetch(:payload))
-      ServiceResult.success(cashout_request: cashout_request)
+      payload = payout_result.data.fetch(:payload)
+      apply_processing_state!(payload)
+
+      sync_result = Cashouts::SyncPaypalPayoutStatus.call(cashout_request: cashout_request, actor: actor)
+      return sync_result unless sync_result.success?
+
+      ServiceResult.success(cashout_request: sync_result.data.fetch(:cashout_request))
     end
 
     private
@@ -62,34 +74,28 @@ module Cashouts
         payout_failed_at: nil
       )
 
-      paypal_client.post(path: "/v1/payments/payouts", token: token, body: body)
+      paypal_client.post(
+        path: "/v1/payments/payouts",
+        token: token,
+        body: body,
+        idempotency_key: sender_batch_id
+      )
     end
 
-    def apply_paid_state!(payload)
-      ActiveRecord::Base.transaction do
-        cashout_request.lock!
+    def apply_processing_state!(payload)
+      batch_status = payload.dig("batch_header", "batch_status").to_s
 
-        Ledger::PostEntry.call(
-          user: cashout_request.user,
-          entry_type: :debit,
-          account_type: :cashout,
-          amount_cents: cashout_request.amount_cents,
-          reference: cashout_request,
-          created_by: actor,
-          metadata: { payout_provider: "paypal" }
-        )
+      cashout_request.update!(
+        status: :payout_processing,
+        payout_sent_at: Time.current,
+        paypal_payout_batch_id: payload.dig("batch_header", "payout_batch_id"),
+        paypal_payout_status: batch_status,
+        payout_provider_response: payload
+      )
 
-        cashout_request.update!(
-          status: :paid,
-          paid_at: Time.current,
-          payout_sent_at: Time.current,
-          paypal_payout_batch_id: payload.dig("batch_header", "payout_batch_id"),
-          paypal_payout_status: payload.dig("batch_header", "batch_status"),
-          payout_provider_response: payload
-        )
+      return if TERMINAL_SUCCESS_BATCH_STATUSES.include?(batch_status) || TERMINAL_FAILED_BATCH_STATUSES.include?(batch_status)
 
-        Balances::RecalculateUser.call(user: cashout_request.user)
-      end
+      PaypalPayoutStatusSyncJob.set(wait: 2.minutes).perform_later(cashout_request.id, 1)
     end
 
     def fail_cashout!(result)
