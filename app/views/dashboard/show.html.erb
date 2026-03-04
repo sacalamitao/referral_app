@@ -29,19 +29,19 @@
 <% end %>
 
 <div class="space-y-8 rounded-2xl bg-slate-100 p-4 sm:p-6">
-  <section class="rounded-2xl border p-6 text-white shadow-lg" style="background-color: #312e81; border-color: #312e81;">
+  <section class="rounded-2xl border p-6 text-white shadow-lg" style="background: linear-gradient(135deg, #1e293b 0%, #0f3b5f 55%, #155e75 100%); border-color: #0f4c63;">
     <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
       <div>
-        <p class="text-sm text-white">Welcome back</p>
+        <p class="text-sm text-slate-100">Welcome back</p>
         <h1 class="mt-1 text-2xl font-semibold sm:text-4xl">Referral Dashboard</h1>
-        <p class="mt-1 text-sm text-white">Email: <%= @user.email %></p>
+        <p class="mt-1 text-sm text-slate-200">Email: <%= @user.email %></p>
       </div>
 
-      <div class="flex w-full items-center justify-between gap-3 rounded-xl border border-dashed px-4 py-3 sm:max-w-xl" style="border-color: #818cf8; background-color: rgba(99, 102, 241, 0.25);">
+      <div class="flex w-full items-center justify-between gap-3 rounded-xl border border-dashed px-4 py-3 sm:max-w-xl" style="border-color: rgba(148, 163, 184, 0.45); background-color: rgba(15, 23, 42, 0.2);">
         <div class="flex items-center gap-3">
-          <span class="text-lg" aria-hidden="true">🔗</span>
+          <span class="text-lg text-slate-200" aria-hidden="true">🔗</span>
           <div>
-            <p class="text-xs font-medium uppercase tracking-wider text-indigo-100">Your referral code</p>
+            <p class="text-xs font-medium uppercase tracking-wider text-slate-200">Your referral code</p>
             <p class="text-xl font-semibold tracking-wider text-white"><%= @referral_code&.code || "N/A" %></p>
           </div>
         </div>
@@ -49,7 +49,12 @@
         <button type="button"
                 data-copy-referral-code
                 data-code="<%= @referral_code&.code.to_s %>"
-                class="rounded-lg px-3 py-1.5 text-sm font-semibold text-white transition" style="background-color: #4f46e5;">
+                class="inline-flex cursor-pointer items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-semibold text-white transition"
+                style="background-color: rgba(148, 163, 184, 0.25); border: 1px solid rgba(148, 163, 184, 0.35);">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="h-4 w-4" aria-hidden="true">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+          </svg>
           <span data-copy-label>Copy</span>
         </button>
       </div>
@@ -91,7 +96,7 @@
       <p class="mt-1 text-sm text-slate-500">Submit a payout request from your available balance.</p>
     </div>
 
-    <% min_cashout_cents = 500 %>
+    <% min_cashout_cents = 0 %>
     <% has_minimum_balance = @user.available_cents.to_i >= min_cashout_cents %>
 
     <div class="px-5 py-5">
@@ -106,10 +111,16 @@
             <span class="px-3 py-2 text-slate-500">$</span>
             <span class="border-l border-slate-200 px-2 py-2 text-slate-400">USD</span>
             <%= f.number_field :amount_cents,
+                               step: 0.01,
                                min: min_cashout_cents,
                                required: true,
-                               placeholder: "500",
+                               placeholder: "0.00",
                                class: "w-full border-0 px-3 py-2 text-sm focus:outline-none focus:ring-0" %>
+            <button type="button"
+                    class="mr-2 rounded bg-slate-100 px-2 py-1 text-[11px] font-medium text-slate-500 hover:bg-slate-200"
+                    onclick="const field=document.getElementById('cashout_request_amount_cents'); if(field){ field.value='<%= format('%.2f', @user.available_cents.to_f / 100) %>'; field.dispatchEvent(new Event('input',{bubbles:true})); }">
+              max-payout
+            </button>
           </div>
         </div>
 
@@ -125,58 +136,97 @@
         <div class="sm:col-span-2">
           <%= f.label :payout_reference, "Payout Reference", class: "mb-1 block text-sm font-medium text-slate-700" %>
           <%= f.text_field :payout_reference, required: true,
-                           placeholder: "PayPal email, 0917xxxxxxx, or bank account",
-                           class: "w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200" %>
+                             placeholder: "PayPal email, 0917xxxxxxx, or bank account",
+                             class: "w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200" %>
         </div>
 
-        <div class="sm:col-span-2" style="margin-top: 12px;">
-          <input type="submit"
-                 value="Submit Cashout Request"
-                 <%= "disabled" unless has_minimum_balance %>
-                 style="display:block !important; visibility:visible !important; opacity:1 !important; background:<%= has_minimum_balance ? '#10b981' : '#6366f1' %>; color:#fff; border:0; border-radius:10px; padding:10px 20px; font-weight:600;" />
+        <div class="sm:col-span-2 pt-5" style="margin-top: 1.25rem;">
+          <button type="submit"
+                  class="inline-flex w-full items-center justify-center gap-2 rounded-lg border px-3 py-2 text-sm font-semibold text-white transition hover:opacity-95"
+                  style="background-color:#0f766e;border-color:#0f766e;color:#ffffff;min-height:42px;">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="h-4 w-4" aria-hidden="true">
+              <rect x="3" y="5" width="18" height="16" rx="2" ry="2"></rect>
+              <path d="M16 3v4M8 3v4M3 11h18"></path>
+            </svg>
+            <span>Submit Cashout Request</span>
+          </button>
         </div>
 
-      <% end %>
-
-      <% unless has_minimum_balance %>
-        <div class="mt-2 inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-700">
-          <span aria-hidden="true">🔒</span>
-          <span>Requires minimum <%= number_to_currency(min_cashout_cents / 100.0, precision: 2) %> balance</span>
-        </div>
       <% end %>
     </div>
   </section>
 
-  <section class="rounded-xl border border-slate-200 bg-white shadow-sm">
-    <div class="flex items-center justify-between border-b border-slate-200 px-5 py-4">
-      <h2 class="text-lg font-semibold text-slate-900">Recent Ledger Entries</h2>
-      <span class="text-xs text-slate-500">Page <%= @ledger_page %> of <%= @ledger_total_pages %></span>
+  <section class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+    <div class="flex flex-col gap-3 border-b border-slate-200 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-5">
+      <h2 class="text-3xl font-semibold text-slate-900">Recent Ledger Entries</h2>
+      <div class="flex flex-wrap items-center gap-2">
+        <% credits_pill = ledger_summary_pill(@ledger_totals[:credits_cents], variant: :success) %>
+        <% debits_pill = ledger_summary_pill(@ledger_totals[:debits_cents], variant: :danger) %>
+        <% net_variant = @ledger_totals[:net_cents].negative? ? :danger : :success %>
+        <% net_pill = ledger_summary_pill(@ledger_totals[:net_cents], variant: net_variant, signed: true) %>
+
+        <span class="inline-flex items-center rounded-full px-3 py-1 text-sm font-medium" style="<%= credits_pill[:style] %>">
+          Total Credits: <span class="ml-1"><%= credits_pill[:label] %></span>
+        </span>
+        <span class="inline-flex items-center rounded-full px-3 py-1 text-sm font-medium" style="<%= debits_pill[:style] %>">
+          Total Debits: <span class="ml-1">-<%= debits_pill[:label] %></span>
+        </span>
+        <span class="inline-flex items-center rounded-full px-3 py-1 text-sm font-medium" style="<%= net_pill[:style] %>">
+          Net Balance:
+          <span class="ml-1 <%= @ledger_totals[:net_cents].negative? ? 'text-rose-700' : 'text-emerald-700' %>"><%= net_pill[:label] %></span>
+        </span>
+      </div>
     </div>
 
     <% if @recent_ledger_entries.any? %>
       <div class="overflow-x-auto">
         <table class="min-w-full text-left text-sm">
-          <thead class="bg-slate-50 text-slate-600">
+          <thead class="bg-slate-50 text-slate-800">
             <tr>
-              <th class="px-5 py-3 font-medium">Occurred At</th>
-              <th class="px-5 py-3 font-medium">Type</th>
-              <th class="px-5 py-3 font-medium">Reward Source</th>
-              <th class="px-5 py-3 font-medium">Referred User Email</th>
-              <th class="px-5 py-3 font-medium">Account</th>
-              <th class="px-5 py-3 font-medium">Amount</th>
+              <th class="px-4 py-3 font-medium">Occurred At</th>
+              <th class="py-3 font-medium" style="padding-left:40px; padding-right:40px; min-width:180px;">Type</th>
+              <th class="px-4 py-3 font-medium">Reward Source</th>
+              <th class="px-4 py-3 font-medium">
+                <span class="inline-flex items-center gap-1">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="h-4 w-4" aria-hidden="true">
+                    <path d="M20 21a8 8 0 0 0-16 0"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                  </svg>
+                  <span>Referred User Email</span>
+                </span>
+              </th>
+              <th class="px-4 py-3 font-medium">Account</th>
+              <th class="py-3 font-medium text-right" style="padding-left:40px; padding-right:40px; min-width:160px;">Amount</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-100">
             <% @recent_ledger_entries.each do |entry| %>
+              <% type_badge = ledger_type_badge(entry.entry_type) %>
+              <% amount_pill = ledger_amount_pill(entry.amount_cents, entry.entry_type) %>
               <tr class="hover:bg-slate-50/60">
-                <td class="px-5 py-3 text-slate-700"><%= entry.occurred_at %></td>
-                <td class="px-5 py-3">
-                  <span class="rounded-full bg-slate-100 px-2 py-1 text-xs font-medium text-slate-700"><%= entry.entry_type %></span>
+                <td class="px-4 py-3 text-slate-700"><%= entry.occurred_at %></td>
+                <td class="py-3" style="padding-left:40px; padding-right:40px; min-width:180px;">
+                  <span class="inline-flex items-center rounded-full px-3 py-1 text-sm font-medium" style="<%= type_badge[:style] %>">
+                    <% if type_badge[:icon] == :debit %>
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="h-4 w-4" aria-hidden="true">
+                        <path d="m9 10 4-4 4 4"></path>
+                        <path d="M13 6v8a4 4 0 0 1-4 4H5"></path>
+                      </svg>
+                    <% else %>
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="h-4 w-4" aria-hidden="true">
+                        <rect x="3" y="5" width="18" height="14" rx="2" ry="2"></rect>
+                        <path d="M3 10h18"></path>
+                      </svg>
+                    <% end %>
+                    <span><%= type_badge[:label] %></span>
+                  </span>
                 </td>
-                <td class="px-5 py-3 text-slate-700"><%= entry.reward_source.presence || "—" %></td>
-                <td class="px-5 py-3 text-slate-700"><%= entry.referred_user_email.presence || "—" %></td>
-                <td class="px-5 py-3 text-slate-700"><%= entry.account_type %></td>
-                <td class="px-5 py-3 font-medium text-slate-900"><%= entry.amount_cents %></td>
+                <td class="px-4 py-3 text-slate-700"><%= entry.reward_source.presence || "—" %></td>
+                <td class="px-4 py-3 text-slate-700"><%= entry.referred_user_email.presence || "—" %></td>
+                <td class="px-4 py-3 text-slate-700"><%= entry.account_type %></td>
+                <td class="py-3 text-right" style="padding-left:40px; padding-right:40px; min-width:160px;">
+                  <span class="inline-flex rounded-full px-4 py-1 text-sm font-medium" style="<%= amount_pill[:style] %>"><%= amount_pill[:label] %></span>
+                </td>
               </tr>
             <% end %>
           </tbody>
@@ -205,6 +255,9 @@
           </div>
         </div>
       <% end %>
+      <div class="border-t border-slate-200 px-5 py-3 text-right text-xs text-slate-500">
+        Page <%= @ledger_page %> of <%= @ledger_total_pages %>
+      </div>
     <% else %>
       <div class="px-5 py-8 text-sm text-slate-500">No ledger entries yet.</div>
     <% end %>
@@ -233,7 +286,7 @@
                 <td class="px-5 py-3">
                   <span class="rounded-full bg-indigo-50 px-2 py-1 text-xs font-medium text-indigo-700"><%= cashout.status %></span>
                 </td>
-                <td class="px-5 py-3 font-medium text-slate-900"><%= cashout.amount_cents %></td>
+                <td class="px-5 py-3 font-medium text-slate-900"><%= number_to_currency(cashout.amount_cents.to_f / 100, precision: 2) %></td>
               </tr>
             <% end %>
           </tbody>

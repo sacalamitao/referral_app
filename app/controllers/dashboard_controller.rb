@@ -8,7 +8,13 @@ class DashboardController < ApplicationController
     @referral_code = @user.active_referral_code
     @cashout_request = CashoutRequest.new
 
-    ledger_scope = @user.ledger_entries.includes(:reference).order(occurred_at: :desc)
+    ledger_scope = @user.ledger_entries.order(occurred_at: :desc)
+    @ledger_totals = {
+      credits_cents: ledger_scope.where(entry_type: "credit").sum(:amount_cents).to_i,
+      debits_cents: ledger_scope.where(entry_type: "debit").sum(:amount_cents).to_i
+    }
+    @ledger_totals[:net_cents] = @ledger_totals[:credits_cents] - @ledger_totals[:debits_cents]
+
     @ledger_page = [ params.fetch(:ledger_page, 1).to_i, 1 ].max
     @ledger_total_count = ledger_scope.count
     @ledger_total_pages = [ (@ledger_total_count.to_f / per_page).ceil, 1 ].max

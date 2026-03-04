@@ -33,4 +33,58 @@ module ApplicationHelper
       }
     end
   end
+
+  def ledger_type_badge(entry_type)
+    normalized = entry_type.to_s.downcase
+
+    if normalized == "debit"
+      {
+        label: "debit",
+        style: "background-color:#fee2e2;color:#b91c1c;",
+        icon: :debit
+      }
+    else
+      {
+        label: "credit",
+        style: "background-color:#dcfce7;color:#15803d;",
+        icon: :credit
+      }
+    end
+  end
+
+  def ledger_amount_pill(amount_cents, entry_type)
+    amount = amount_cents.to_i.abs
+    debit = entry_type.to_s.downcase == "debit"
+
+    {
+      label: "#{debit ? '-' : ''}#{number_with_delimiter(amount)}",
+      style: debit ? "background-color:#fee2e2;color:#b91c1c;" : "background-color:#dcfce7;color:#15803d;"
+    }
+  end
+
+  def ledger_summary_pill(value_cents, variant: :neutral, signed: false)
+    value = value_cents.to_i
+    label_value = signed ? (value.positive? ? "+#{number_with_delimiter(value)}" : number_with_delimiter(value)) : number_with_delimiter(value)
+
+    classes = case variant.to_sym
+    when :success
+                "bg-emerald-100 text-emerald-800"
+    when :danger
+                "bg-rose-100 text-rose-800"
+    else
+                "bg-slate-100 text-slate-800"
+    end
+
+    {
+      label: label_value,
+      style: case variant.to_sym
+             when :success
+               "background-color:#dcfce7;color:#166534;"
+             when :danger
+               "background-color:#fee2e2;color:#991b1b;"
+             else
+               "background-color:#e2e8f0;color:#1e293b;"
+             end
+    }
+  end
 end
