@@ -3,7 +3,7 @@ module Cashouts
     SUPPORTED_PAYOUT_METHODS = %w[gcash bank paypal].freeze
 
     def self.call(user:, amount_cents:, payout_method:, payout_reference:)
-      amount = amount_cents.to_i
+      amount = Cashouts::ParseUsdAmount.call(raw_amount: amount_cents)
       method = payout_method.to_s.downcase.strip
       reference = payout_reference.to_s.strip
 
@@ -53,6 +53,8 @@ module Cashouts
       return ServiceResult.failure(error_code: "insufficient_balance", error_message: "Amount exceeds available balance") if cashout_request.blank?
 
       ServiceResult.success(cashout_request: cashout_request)
+    rescue Cashouts::ParseUsdAmount::InvalidAmountError => e
+      ServiceResult.failure(error_code: "invalid_amount", error_message: e.message)
     rescue ActiveRecord::RecordInvalid => e
       ServiceResult.failure(error_code: "invalid_cashout_request", error_message: e.record.errors.full_messages.to_sentence)
     end
