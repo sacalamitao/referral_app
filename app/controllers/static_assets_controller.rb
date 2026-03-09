@@ -1,4 +1,11 @@
 class StaticAssetsController < ActionController::Base
+  def logo_png
+    file_path = Rails.root.join("app", "assets", "images", "logo.png")
+    return head :not_found unless File.exist?(file_path)
+
+    send_file file_path, type: "image/png", disposition: "inline"
+  end
+
   def icon_png
     send_public_asset("icon.png", "image/png")
   end

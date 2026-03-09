@@ -1,8 +1,6 @@
 module ApplicationHelper
   def header_logo_path
-    asset_path("logo.png")
-  rescue StandardError
-    "/icon.png"
+    "/logo.png"
   end
 
   def humanize_label(value)

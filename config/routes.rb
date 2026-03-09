@@ -21,6 +21,7 @@ Rails.application.routes.draw do
   # Render dynamic PWA files from app/views/pwa/*
   get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
   get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
+  get "logo.png" => "static_assets#logo_png"
   get "icon.png" => "static_assets#icon_png"
   get "icon.svg" => "static_assets#icon_svg"
 
