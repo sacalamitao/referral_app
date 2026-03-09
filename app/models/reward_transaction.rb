@@ -1,5 +1,5 @@
 class RewardTransaction < ApplicationRecord
-  enum :event_type, { registration: 0, subscription: 1 }
+  enum :event_type, { registration: 0, credit_purchase: 1, renewal: 2 }
   enum :status, { pending: 0, available: 1, reversed: 2 }
 
   belongs_to :referral

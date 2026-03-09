@@ -52,25 +52,29 @@ Admin Users
 4. Persist `webhook_events` as received.
 5. Reserve idempotency key.
 6. Enqueue processing job.
-7. Apply registration/subscription reward logic.
+7. Apply registration/credit_purchase/renewal reward logic.
 8. Create `reward_transactions` and `ledger_entries` atomically.
 9. Mark webhook event status.
 
 ### Webhook Payload Contract (Current)
 
 - Common fields:
-  - `event_type`: `registration` or `subscription`
-  - `idempotency_key`: unique dedupe key
+  - `event_type`: `registration`, `credit_purchase`, or `renewal`
+  - `idempotency_key`: optional dedupe key; when omitted, server derives a deterministic key from payload fingerprint
   - `reward_amount`: positive integer reward amount (in cents)
-  - `referred_user_email` (optional): email of referred user for reporting/display
-- Registration fields:
-  - `referral_code`
-  - `external_user_id`
-- Subscription fields:
-  - `external_user_id`
-  - `transaction_id`
+  - `referral_code`: required
+  - `referred_user_email`: required (normalized to lower-case and used as referral identity)
 
-Backward compatibility: `referred_user_email` is optional and processing remains valid when omitted.
+- Simplified payload is now the same for all event types:
+
+```json
+{
+  "event_type": "renewal",
+  "referral_code": "QHI1WYHH",
+  "referred_user_email": "newuser@example.com",
+  "reward_amount": 9000
+}
+```
 
 ## 6) Ledger Rules
 

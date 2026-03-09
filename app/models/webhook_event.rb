@@ -1,5 +1,5 @@
 class WebhookEvent < ApplicationRecord
-  enum :event_type, { registration: 0, subscription: 1 }
+  enum :event_type, { registration: 0, credit_purchase: 1, renewal: 2 }
   enum :status, { received: 0, validated: 1, processed: 2, failed: 3 }
 
   has_many :reward_transactions, foreign_key: :source_event_id, inverse_of: :source_event, dependent: :restrict_with_error

@@ -1,6 +1,6 @@
 module WebhookEvents
   class Ingest
-    SUPPORTED_EVENT_TYPES = %w[registration subscription].freeze
+    SUPPORTED_EVENT_TYPES = %w[registration credit_purchase renewal].freeze
 
     def self.call(payload:, raw_body:, signature:, timestamp:)
       new(payload:, raw_body:, signature:, timestamp:).call
@@ -38,7 +38,13 @@ module WebhookEvents
       reward_amount_validation = validate_reward_amount
       return reward_amount_validation if reward_amount_validation.present?
 
-      idempotency_key = payload["idempotency_key"].to_s
+      referred_user_email_validation = validate_referred_user_email
+      return referred_user_email_validation if referred_user_email_validation.present?
+
+      referral_code_validation = validate_referral_code
+      return referral_code_validation if referral_code_validation.present?
+
+      idempotency_key = resolve_idempotency_key(event_type: event_type)
       request_hash = Digest::SHA256.hexdigest(raw_body)
       idempotency = Idempotency::LockAndFetch.call(key: idempotency_key, request_hash: request_hash)
 
@@ -90,6 +96,47 @@ module WebhookEvents
       ServiceResult.failure(error_code: "missing_reward_amount", error_message: "reward_amount is required", http_status: :unprocessable_entity)
     rescue ArgumentError, TypeError
       ServiceResult.failure(error_code: "invalid_reward_amount", error_message: "reward_amount must be a positive integer", http_status: :unprocessable_entity)
+    end
+
+    def validate_referred_user_email
+      email = normalized_referred_user_email
+      return if email.present?
+
+      ServiceResult.failure(
+        error_code: "missing_referred_user_email",
+        error_message: "referred_user_email is required",
+        http_status: :unprocessable_entity
+      )
+    end
+
+    def validate_referral_code
+      code = payload["referral_code"].to_s.strip
+      return if code.present?
+
+      ServiceResult.failure(
+        error_code: "missing_referral_code",
+        error_message: "referral_code is required",
+        http_status: :unprocessable_entity
+      )
+    end
+
+    def resolve_idempotency_key(event_type:)
+      explicit_key = payload["idempotency_key"].to_s.strip
+      return explicit_key if explicit_key.present?
+
+      payload_fingerprint = Digest::SHA256.hexdigest(
+        [
+          event_type,
+          payload["referral_code"].to_s.strip.upcase,
+          normalized_referred_user_email,
+          payload["reward_amount"].to_s.strip
+        ].join("|")
+      )
+      "auto:#{payload_fingerprint}"
+    end
+
+    def normalized_referred_user_email
+      payload["referred_user_email"].to_s.strip.downcase
     end
   end
 end

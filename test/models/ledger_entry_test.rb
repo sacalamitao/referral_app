@@ -3,13 +3,13 @@ require "test_helper"
 class LedgerEntryTest < ActiveSupport::TestCase
   test "reward helpers return reward source and referred user email for reward transaction references" do
     reward_txn = RewardTransaction.new(
-      event_type: :subscription,
+      event_type: :credit_purchase,
       metadata: { "referred_user_email" => "  invitee@example.com  " }
     )
 
     ledger_entry = LedgerEntry.new(reference: reward_txn)
 
-    assert_equal "subscription", ledger_entry.reward_source
+    assert_equal "credit_purchase", ledger_entry.reward_source
     assert_equal "invitee@example.com", ledger_entry.referred_user_email
   end
 
@@ -21,4 +21,3 @@ class LedgerEntryTest < ActiveSupport::TestCase
     assert_nil ledger_entry.referred_user_email
   end
 end
-
