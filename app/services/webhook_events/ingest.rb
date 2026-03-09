@@ -35,6 +35,9 @@ module WebhookEvents
       event_type = payload["event_type"].to_s
       return ServiceResult.failure(error_code: "invalid_event_type", error_message: "unsupported event_type", http_status: :unprocessable_entity) unless SUPPORTED_EVENT_TYPES.include?(event_type)
 
+      reward_amount_validation = validate_reward_amount
+      return reward_amount_validation if reward_amount_validation.present?
+
       idempotency_key = payload["idempotency_key"].to_s
       request_hash = Digest::SHA256.hexdigest(raw_body)
       idempotency = Idempotency::LockAndFetch.call(key: idempotency_key, request_hash: request_hash)
@@ -77,5 +80,16 @@ module WebhookEvents
     private
 
     attr_reader :payload, :raw_body, :signature, :timestamp
+
+    def validate_reward_amount
+      reward_amount = Integer(payload.fetch("reward_amount"))
+      return if reward_amount.positive?
+
+      ServiceResult.failure(error_code: "invalid_reward_amount", error_message: "reward_amount must be a positive integer", http_status: :unprocessable_entity)
+    rescue KeyError
+      ServiceResult.failure(error_code: "missing_reward_amount", error_message: "reward_amount is required", http_status: :unprocessable_entity)
+    rescue ArgumentError, TypeError
+      ServiceResult.failure(error_code: "invalid_reward_amount", error_message: "reward_amount must be a positive integer", http_status: :unprocessable_entity)
+    end
   end
 end
