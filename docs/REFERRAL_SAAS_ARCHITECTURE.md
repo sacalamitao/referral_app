@@ -21,7 +21,7 @@ Admin Users
 - The platform uses one canonical `system_configs` row.
 - Webhook intake and signing are controlled by singleton `system_configs.webhook_secret`.
 - Referral and reward records are global to the single-tenant deployment.
-- Reward rules are global by event type.
+- Reward amounts are supplied per webhook payload via `reward_amount`.
 
 ## 3) Core Entities
 
@@ -29,7 +29,6 @@ Admin Users
 - `SystemConfig`: singleton webhook/security configuration.
 - `ReferralCode`: unique referral code per user.
 - `Referral`: referred external user.
-- `RewardRule`: rules by event type.
 - `RewardTransaction`: immutable reward record.
 - `LedgerEntry`: accounting source-of-truth rows.
 - `CashoutRequest`: payout lifecycle.
@@ -62,6 +61,7 @@ Admin Users
 - Common fields:
   - `event_type`: `registration` or `subscription`
   - `idempotency_key`: unique dedupe key
+  - `reward_amount`: positive integer reward amount (in cents)
   - `referred_user_email` (optional): email of referred user for reporting/display
 - Registration fields:
   - `referral_code`
@@ -69,7 +69,6 @@ Admin Users
 - Subscription fields:
   - `external_user_id`
   - `transaction_id`
-  - `amount`
 
 Backward compatibility: `referred_user_email` is optional and processing remains valid when omitted.
 

@@ -4,10 +4,7 @@ module Rewards
       payload = webhook_event.payload
 
       referral = Referral.find_by!(external_user_id: payload.fetch("external_user_id"))
-      rule = RewardRule.enabled.active.find_by!(event_type: :subscription)
-
-      amount_cents = payload.fetch("amount").to_i
-      reward_cents = Rewards::CalculateReward.call(rule: rule, amount_cents: amount_cents)
+      reward_cents = Rewards::ResolveRewardAmount.call(payload: payload)
       transaction_id = payload.fetch("transaction_id")
 
       reward_txn = RewardTransaction.create!(
@@ -18,11 +15,10 @@ module Rewards
         external_transaction_id: transaction_id,
         idempotency_fingerprint: "subscription:#{transaction_id}",
         reward_cents: reward_cents,
-        gross_cents: amount_cents,
+        gross_cents: 0,
         status: :available,
         available_at: Time.current,
         metadata: {
-          rule_id: rule.id,
           reward_source: "subscription",
           referred_user_email: payload["referred_user_email"].to_s.strip.presence
         }

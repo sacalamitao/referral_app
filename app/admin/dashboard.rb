@@ -117,7 +117,6 @@ ActiveAdmin.register_page "Dashboard" do
             li link_to("Review Cashouts", "/admin/cashout_requests")
             li link_to("View Failed Webhooks", "/admin/webhook_events")
             li link_to("Inspect Referrals", "/admin/referrals")
-            li link_to("Adjust Reward Rules", "/admin/reward_rules")
           end
         end
 

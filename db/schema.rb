@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_02_26_090500) do
+ActiveRecord::Schema[7.2].define(version: 2026_03_09_095000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -128,21 +128,6 @@ ActiveRecord::Schema[7.2].define(version: 2026_02_26_090500) do
     t.index ["referral_code_id"], name: "index_referrals_on_referral_code_id"
     t.index ["referrer_user_id"], name: "index_referrals_on_referrer_user_id"
     t.index ["status"], name: "index_referrals_on_status"
-  end
-
-  create_table "reward_rules", force: :cascade do |t|
-    t.integer "event_type", null: false
-    t.integer "reward_mode", default: 0, null: false
-    t.bigint "amount_cents"
-    t.integer "percentage_bps"
-    t.integer "recurrence_mode", default: 0, null: false
-    t.integer "pending_days", default: 0, null: false
-    t.datetime "active_from"
-    t.datetime "active_to"
-    t.boolean "enabled", default: true, null: false
-    t.jsonb "config", default: {}, null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
   end
 
   create_table "reward_transactions", force: :cascade do |t|
