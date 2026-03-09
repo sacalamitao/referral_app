@@ -30,4 +30,11 @@ Rails.application.routes.draw do
   unauthenticated do
     root to: redirect("/users/sign_in"), as: :unauthenticated_root
   end
+
+  # Fallback root route to prevent production 404 when Devise route constraints
+  # fail to resolve in specific proxy/session edge cases.
+  root to: redirect("/users/sign_in")
+
+  # Legacy admin link fallback after Reward Rules removal.
+  get "/admin/reward_rules", to: redirect("/admin")
 end
