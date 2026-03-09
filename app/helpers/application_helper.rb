@@ -3,9 +3,9 @@ module ApplicationHelper
     case type.to_sym
     when :notice, :success
       {
-        wrapper: "bg-emerald-950/90 text-emerald-200 ring-emerald-400/30",
-        icon: "text-emerald-300",
-        close: "text-emerald-300/80 hover:text-emerald-200"
+        wrapper: "bg-teal-950/90 text-teal-100 ring-teal-400/30",
+        icon: "text-teal-200",
+        close: "text-teal-200/80 hover:text-teal-100"
       }
     when :alert, :error
       {
@@ -21,9 +21,9 @@ module ApplicationHelper
       }
     when :info
       {
-        wrapper: "bg-blue-950/90 text-blue-200 ring-blue-400/30",
-        icon: "text-blue-300",
-        close: "text-blue-300/80 hover:text-blue-200"
+        wrapper: "bg-cyan-950/90 text-cyan-100 ring-cyan-400/30",
+        icon: "text-cyan-200",
+        close: "text-cyan-200/80 hover:text-cyan-100"
       }
     else
       {

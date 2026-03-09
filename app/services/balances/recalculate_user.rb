@@ -9,12 +9,15 @@ module Balances
 
       total_earned = user.reward_transactions.where.not(status: :reversed).sum(:reward_cents)
 
-      user.update!(
+      # Balance fields are denormalized/cached counters derived from ledger + reward tables.
+      # Persist them without triggering profile validations (first_name/last_name/contact_number),
+      # so webhook processing is not blocked by unrelated user-profile completeness.
+      user.update_columns(
         pending_cents: [ pending, 0 ].max,
         available_cents: [ available, 0 ].max,
-        total_earned_cents: [ total_earned, 0 ].max
+        total_earned_cents: [ total_earned, 0 ].max,
+        updated_at: Time.current
       )
     end
   end
 end
-
