@@ -85,8 +85,8 @@
         <p class="text-sm font-medium text-slate-500">Total Earned</p>
         <span class="text-amber-500" aria-hidden="true">🪙</span>
       </div>
-      <p class="mt-2 text-5xl font-semibold leading-none text-slate-900"><%= number_with_precision(@user.total_earned_cents.to_f / 100, precision: 2) %></p>
-      <p class="mt-1 text-lg text-slate-400">cents</p>
+      <p class="mt-2 text-5xl font-semibold leading-none text-slate-900"><%= number_to_currency(@user.total_earned_cents.to_f / 100, precision: 2) %></p>
+      <p class="mt-1 text-lg text-slate-400">USD</p>
     </div>
   </section>
 

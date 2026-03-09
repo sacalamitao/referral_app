@@ -57,14 +57,19 @@ module ApplicationHelper
     debit = entry_type.to_s.downcase == "debit"
 
     {
-      label: "#{debit ? '-' : ''}#{number_with_delimiter(amount)}",
+      label: "#{debit ? '-' : ''}#{number_to_currency(amount / 100.0, precision: 2)}",
       style: debit ? "background-color:#fee2e2;color:#b91c1c;" : "background-color:#dcfce7;color:#15803d;"
     }
   end
 
   def ledger_summary_pill(value_cents, variant: :neutral, signed: false)
     value = value_cents.to_i
-    label_value = signed ? (value.positive? ? "+#{number_with_delimiter(value)}" : number_with_delimiter(value)) : number_with_delimiter(value)
+    currency_value = number_to_currency(value.abs / 100.0, precision: 2)
+    label_value = if signed
+      value.positive? ? "+#{currency_value}" : value.negative? ? "-#{currency_value}" : currency_value
+    else
+      currency_value
+    end
 
     classes = case variant.to_sym
     when :success

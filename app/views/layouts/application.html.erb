@@ -25,7 +25,9 @@
       <header class="border-b border-teal-100 bg-white/95 backdrop-blur">
         <div class="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
           <div class="flex items-center gap-3">
-            <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-teal-700 text-sm font-bold text-white">RA</div>
+            <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-teal-300 bg-teal-50 text-xs font-bold tracking-wide text-teal-800">
+              SS
+            </div>
             <div>
               <p class="text-sm text-teal-700">Salish Sea</p>
               <p class="text-base font-semibold text-teal-900">Boating Referral Platform</p>
@@ -37,8 +39,13 @@
               <p class="rounded-lg px-3 py-2 text-sm font-medium text-slate-700">
                 <%= current_user&.first_name.present? ? "Welcome Back #{current_user.first_name.to_s.strip.split.first.titleize}!" : "Welcome Back!" %>
               </p>
-              <%= button_to "Sign out", destroy_user_session_path, method: :delete,
-                            class: "rounded-lg bg-teal-800 px-3 py-2 text-sm font-medium text-white hover:bg-teal-700" %>
+              <%= button_to destroy_user_session_path,
+                            method: :delete,
+                            class: "inline-flex items-center rounded-lg border px-3 py-2 text-sm font-semibold shadow-sm",
+                            form_class: "inline-flex",
+                            style: "background-color:#0f172a;border-color:#0f172a;color:#ffffff;" do %>
+                <span style="color:#ffffff;">Sign out</span>
+              <% end %>
             <% else %>
               <%= link_to "Sign in", new_user_session_path,
                           class: "rounded-lg px-3 py-2 text-sm font-medium text-teal-800 hover:bg-teal-50" %>
