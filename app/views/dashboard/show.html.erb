@@ -221,9 +221,9 @@
                     <span><%= type_badge[:label] %></span>
                   </span>
                 </td>
-                <td class="px-4 py-3 text-slate-700"><%= entry.reward_source.presence || "—" %></td>
+                <td class="px-4 py-3 text-slate-700"><%= humanize_label(entry.reward_source) %></td>
                 <td class="px-4 py-3 text-slate-700"><%= entry.referred_user_email.presence || "—" %></td>
-                <td class="px-4 py-3 text-slate-700"><%= entry.account_type %></td>
+                <td class="px-4 py-3 text-slate-700"><%= humanize_label(entry.account_type) %></td>
                 <td class="py-3 text-right" style="padding-left:40px; padding-right:40px; min-width:160px;">
                   <span class="inline-flex rounded-full px-4 py-1 text-sm font-medium" style="<%= amount_pill[:style] %>"><%= amount_pill[:label] %></span>
                 </td>
@@ -284,7 +284,7 @@
               <tr class="hover:bg-slate-50/60">
                 <td class="px-5 py-3 text-slate-700"><%= cashout.created_at %></td>
                 <td class="px-5 py-3">
-                  <span class="rounded-full bg-indigo-50 px-2 py-1 text-xs font-medium text-indigo-700"><%= cashout.status %></span>
+                  <span class="rounded-full bg-indigo-50 px-2 py-1 text-xs font-medium text-indigo-700"><%= humanize_label(cashout.status) %></span>
                 </td>
                 <td class="px-5 py-3 font-medium text-slate-900"><%= number_to_currency(cashout.amount_cents.to_f / 100, precision: 2) %></td>
               </tr>

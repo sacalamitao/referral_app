@@ -1,4 +1,8 @@
 module ApplicationHelper
+  def humanize_label(value)
+    value.to_s.strip.presence&.tr("_", " ")&.titleize || "—"
+  end
+
   def flash_variant(type)
     case type.to_sym
     when :notice, :success
