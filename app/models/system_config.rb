@@ -50,7 +50,7 @@ class SystemConfig < ApplicationRecord
     self.webhook_secret ||= SecureRandom.hex(32)
     self.timezone ||= "UTC"
     self.paypal_mode ||= "sandbox"
-    self.paypal_payout_currency ||= "USD"
+    self.paypal_payout_currency ||= "CAD"
     self.active = true if active.nil?
   end
 
