@@ -36,7 +36,7 @@ gem "hotwire-livereload"
 
 # Sidekiq 7.x runtime compatibility on Ruby 3.3.
 # `connection_pool` 3.x can break Sidekiq scheduler internals in production.
-gem "connection_pool", "~> 2.4"
+gem "connection_pool", "~> 3.0"
 
 # Use Redis adapter to run Action Cable in production
 # gem "redis", ">= 4.0.1"
