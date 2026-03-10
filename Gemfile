@@ -20,7 +20,7 @@ gem "stimulus-rails"
 # Build JSON APIs with ease [https://github.com/rails/jbuilder]
 gem "jbuilder"
 gem "redis", ">= 5.0"
-gem "sidekiq", "~> 7.0"
+gem "sidekiq", "~> 8.0"
 gem "rack-attack"
 
 # Admin UI framework
