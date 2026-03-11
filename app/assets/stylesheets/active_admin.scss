@@ -16,9 +16,20 @@
 //
 //   .status_tag { background: #6090DB; }
 
-// Fix stuck gray screen when jQuery UI modal overlay remains orphaned.
-// Keep dialogs usable, but prevent overlay from blocking interactions.
-body.active_admin .ui-widget-overlay {
-  pointer-events: none !important;
-  background: transparent !important;
+// ActiveAdmin modal layering
+// Ensure dialog is always above overlay and clearly visible.
+body.active_admin {
+  .ui-widget-overlay {
+    z-index: 1000 !important;
+    background: rgba(15, 23, 42, 0.45) !important;
+  }
+
+  .ui-dialog {
+    z-index: 1001 !important;
+  }
+
+  .ui-dialog.ui-widget {
+    border-radius: 10px;
+    overflow: hidden;
+  }
 }

@@ -1,52 +1,156 @@
-<div class="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8">
-  <div class="sm:mx-auto sm:w-full sm:max-w-sm">
-    <div class="mx-auto flex h-10 w-10 items-center justify-center rounded-lg bg-teal-700 text-sm font-bold text-white">RA</div>
-    <h2 class="mt-10 text-center text-2xl font-bold tracking-tight text-gray-900">Sign in to your account</h2>
-  </div>
+<style>
+  .signin-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f3f4f6;
+    padding: 24px;
+  }
 
-  <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-    <%= form_for(resource, as: resource_name, url: session_path(resource_name), html: { class: "space-y-6" }) do |f| %>
-      <div>
-        <%= f.label :email, "Email address", class: "block text-sm font-medium text-gray-900" %>
-        <div class="mt-2">
-          <%= f.email_field :email,
-                            autofocus: true,
-                            autocomplete: "email",
-                            class: "block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-teal-700 sm:text-sm" %>
-        </div>
-      </div>
+  .signin-card {
+    width: 100%;
+    max-width: 370px;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 28px 24px;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
+  }
 
-      <div>
-        <div class="flex items-center justify-between">
-          <%= f.label :password, class: "block text-sm font-medium text-gray-900" %>
-          <% if devise_mapping.recoverable? %>
-            <div class="text-sm">
-              <%= link_to "Forgot password?", new_user_password_path, class: "font-semibold text-teal-700 hover:text-teal-600" %>
-            </div>
-          <% end %>
-        </div>
-        <div class="mt-2">
-          <%= f.password_field :password,
-                               autocomplete: "current-password",
-                               class: "block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-teal-700 sm:text-sm" %>
-        </div>
-      </div>
+  .signin-brand {
+    text-align: center;
+    margin-bottom: 24px;
+  }
 
-      <% if devise_mapping.rememberable? %>
-        <div class="flex items-center gap-2">
-          <%= f.check_box :remember_me, class: "h-4 w-4 rounded border-gray-300 text-teal-700 focus:ring-teal-700" %>
-          <%= f.label :remember_me, class: "text-sm text-gray-700" %>
-        </div>
-      <% end %>
+  .signin-brand img {
+    width: 72px;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+  }
 
-      <div>
-        <%= f.submit "Sign in", class: "flex w-full justify-center rounded-md bg-teal-700 px-3 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-teal-600" %>
-      </div>
+  .signin-brand h1 {
+    margin: 12px 0 0;
+    font-size: 38px;
+    font-weight: 600;
+    line-height: 1.1;
+  }
+
+  .signin-form { display: grid; gap: 12px; }
+
+  .signin-input {
+    width: 100%;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    padding: 12px 14px;
+    font-size: 16px;
+    color: #111827;
+    box-sizing: border-box;
+  }
+
+  .signin-input:focus {
+    outline: 2px solid rgba(15, 118, 110, 0.2);
+    border-color: #0f766e;
+  }
+
+  .signin-submit {
+    margin-top: 6px;
+    width: 100%;
+    border: 0;
+    border-radius: 6px;
+    padding: 12px 16px;
+    font-size: 16px;
+    font-weight: 500;
+    color: #fff;
+    background: linear-gradient(90deg, #134e4a 0%, #475569 100%);
+    cursor: pointer;
+  }
+
+  .signin-links {
+    margin-top: 18px;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .signin-links a { color: #334155; font-size: 14px; text-decoration: none; }
+  .signin-links a:hover { color: #0f766e; }
+
+  .signin-social-label {
+    margin: 18px 0 0;
+    text-align: center;
+    color: #6b7280;
+    font-size: 14px;
+  }
+
+  .signin-social-icons {
+    margin-top: 12px;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+  }
+
+  .signin-social-icons button {
+    width: 38px;
+    height: 38px;
+    border-radius: 999px;
+    border: 0;
+    background: #e5e7eb;
+    color: #374151;
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .signin-captcha {
+    margin-top: 18px;
+    color: #9ca3af;
+    font-size: 13px;
+    text-align: center;
+    line-height: 1.5;
+  }
+
+  .signin-captcha span { color: #6b7280; text-decoration: underline; }
+</style>
+
+<div class="signin-page">
+  <div class="signin-card">
+    <div class="signin-brand">
+      <%= image_tag "logo.png", alt: "Rewards Portal" %>
+      <h1 class="text-teal-200">Rewards Portal</h1>
+    </div>
+
+    <%= form_for(resource, as: resource_name, url: session_path(resource_name), html: { class: "signin-form" }) do |f| %>
+      <%= f.label :email, "Email address", class: "sr-only" %>
+      <%= f.email_field :email, autofocus: true, autocomplete: "email", placeholder: "Username or Email id", class: "signin-input" %>
+
+      <%= f.label :password, "Password", class: "sr-only" %>
+      <%= f.password_field :password, autocomplete: "current-password", placeholder: "Password", class: "signin-input" %>
+
+      <%= f.submit "Sign in", class: "signin-submit" %>
     <% end %>
 
-    <p class="mt-10 text-center text-sm text-gray-500">
-      Not a member?
-      <%= link_to "Create an account", new_user_registration_path, class: "font-semibold text-teal-700 hover:text-teal-600" %>
+    <div class="signin-links">
+      <% if devise_mapping.recoverable? %>
+        <%= link_to "Forgot password?", new_user_password_path %>
+      <% else %>
+        <span></span>
+      <% end %>
+      <%= link_to "Sign up", new_user_registration_path %>
+    </div>
+
+    <%# <p class="signin-social-label">or you can sign in with</p> %>
+
+    <%# <div class="signin-social-icons"> %>
+      <%# <button type="button" disabled aria-label="Google sign in option">G+</button> %>
+      <%# <button type="button" disabled aria-label="GitHub sign in option">GH</button> %>
+      <%# <button type="button" disabled aria-label="Facebook sign in option">f</button> %>
+      <%# <button type="button" disabled aria-label="More sign in options">•••</button> %>
+    <%# </div> %>
+
+    <p class="signin-captcha">
+      This site is protected by reCAPTCHA and the Google
+      <span>Privacy Policy</span> and
+      <span>Terms of Service</span> apply.
     </p>
   </div>
 </div>

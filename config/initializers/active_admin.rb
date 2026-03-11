@@ -151,7 +151,7 @@ ActiveAdmin.setup do |config|
   # config.comments_order = 'created_at ASC'
   #
   # You can disable the menu item for the comments index page:
-  # config.comments_menu = false
+  config.comments_menu = false
   #
   # You can customize the comment menu:
   # config.comments_menu = { parent: 'Admin', priority: 1 }
@@ -174,7 +174,7 @@ ActiveAdmin.setup do |config|
   # You can exclude possibly sensitive model attributes from being displayed,
   # added to forms, or exported by default by ActiveAdmin
   #
-  config.filter_attributes = [:encrypted_password, :password, :password_confirmation]
+  config.filter_attributes = [ :encrypted_password, :password, :password_confirmation ]
 
   # == Localize Date/Time Format
   #
