@@ -1,0 +1,56 @@
+<% min_cashout_cents ||= 0 %>
+
+<%= form_with model: cashout_request,
+              url: cashout_requests_path,
+              local: true,
+              id: "cashout-request-form",
+              class: "grid gap-4 sm:grid-cols-2" do |f| %>
+  <div>
+    <%= f.label :amount_cents, "Amount (CAD)", class: "mb-1 block text-sm font-medium text-slate-700" %>
+    <div class="flex w-full items-center overflow-hidden rounded-lg border border-slate-300 bg-white text-sm">
+      <span class="px-3 py-2 text-slate-500">$</span>
+      <span class="border-l border-slate-200 px-2 py-2 text-slate-400">CAD</span>
+      <%= f.number_field :amount_cents,
+                         step: 0.01,
+                         min: min_cashout_cents,
+                         required: true,
+                         placeholder: "0.00",
+                         class: "w-full border-0 px-3 py-2 text-sm focus:outline-none focus:ring-0",
+                         data: { cashout_modal_target: "amountInput" } %>
+      <button type="button"
+              class="mr-2 rounded bg-slate-100 px-2 py-1 text-[11px] font-medium text-slate-500 hover:bg-slate-200"
+              data-action="cashout-modal#setMaxPayout"
+              data-max-amount="<%= format('%.2f', user_available_cents.to_f / 100) %>">
+        max-payout
+      </button>
+    </div>
+  </div>
+
+  <div>
+    <%= f.label :payout_method, class: "mb-1 block text-sm font-medium text-slate-700" %>
+    <%= f.select :payout_method,
+                 options_for_select([["PayPal", "paypal"]]),
+                 { include_blank: "Select method" },
+                 { required: true,
+                   class: "w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200" } %>
+  </div>
+
+  <div class="sm:col-span-2">
+    <%= f.label :payout_reference, "Payout Reference", class: "mb-1 block text-sm font-medium text-slate-700" %>
+    <%= f.text_field :payout_reference, required: true,
+                       placeholder: "PayPal email, 0917xxxxxxx, or bank account",
+                       class: "w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200" %>
+  </div>
+
+  <div class="sm:col-span-2 pt-5" style="margin-top: 1.25rem;">
+    <button type="submit"
+            class="inline-flex w-full items-center justify-center gap-2 rounded-lg border px-3 py-2 text-sm font-semibold text-white transition hover:opacity-95"
+            style="background-color:#0f766e;border-color:#0f766e;color:#ffffff;min-height:42px;">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="h-4 w-4" aria-hidden="true">
+        <rect x="3" y="5" width="18" height="16" rx="2" ry="2"></rect>
+        <path d="M16 3v4M8 3v4M3 11h18"></path>
+      </svg>
+      <span>Submit Cashout Request</span>
+    </button>
+  </div>
+<% end %>

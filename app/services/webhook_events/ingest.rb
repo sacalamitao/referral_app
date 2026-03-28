@@ -110,12 +110,20 @@ module WebhookEvents
     end
 
     def validate_referral_code
-      code = payload["referral_code"].to_s.strip
-      return if code.present?
-
-      ServiceResult.failure(
+      code = normalized_referral_code
+      unless code.present?
+        return ServiceResult.failure(
         error_code: "missing_referral_code",
         error_message: "referral_code is required",
+        http_status: :unprocessable_entity
+      )
+      end
+
+      return if ReferralCode.exists?(code: code, active: true)
+
+      ServiceResult.failure(
+        error_code: "invalid_referral_code",
+        error_message: "referral_code is invalid or inactive",
         http_status: :unprocessable_entity
       )
     end
@@ -127,12 +135,16 @@ module WebhookEvents
       payload_fingerprint = Digest::SHA256.hexdigest(
         [
           event_type,
-          payload["referral_code"].to_s.strip.upcase,
+          normalized_referral_code,
           normalized_referred_user_email,
           payload["reward_amount"].to_s.strip
         ].join("|")
       )
       "auto:#{payload_fingerprint}"
+    end
+
+    def normalized_referral_code
+      payload["referral_code"].to_s.strip.upcase
     end
 
     def normalized_referred_user_email
