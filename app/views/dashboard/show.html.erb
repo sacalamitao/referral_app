@@ -127,7 +127,7 @@
         <div>
           <%= f.label :payout_method, class: "mb-1 block text-sm font-medium text-slate-700" %>
           <%= f.select :payout_method,
-                       options_for_select([["PayPal", "paypal"], ["GCash", "gcash"], ["Bank", "bank"]]),
+                       options_for_select([["PayPal", "paypal"]]),
                        { include_blank: "Select method" },
                        { required: true,
                           class: "w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200" } %>

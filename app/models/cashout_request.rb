@@ -21,7 +21,7 @@ class CashoutRequest < ApplicationRecord
   validates :payout_method, presence: true
   validates :payout_reference, presence: true
   validates :payout_attempts, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
-  validates :payout_method, inclusion: { in: %w[gcash bank paypal] }
+  validates :payout_method, inclusion: { in: %w[paypal] }
   validate :amount_not_greater_than_available_balance, on: :create
   validate :paypal_reference_must_be_email
 
