@@ -1,6 +1,6 @@
 module Cashouts
   class CreateRequest
-    SUPPORTED_PAYOUT_METHODS = %w[paypal].freeze
+    SUPPORTED_PAYOUT_METHODS = %w[paypal others].freeze
 
     def self.call(user:, amount_cents:, payout_method:, payout_reference:)
       amount = Cashouts::ParseUsdAmount.call(raw_amount: amount_cents)

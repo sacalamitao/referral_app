@@ -30,8 +30,7 @@ ActiveAdmin.register CashoutRequest do
     if resource.payout_method == "paypal"
       redirect_to resource_path, notice: "Cashout approved. Review balance then send via PayPal."
     else
-      CashoutPayoutJob.perform_later(resource.id)
-      redirect_to resource_path, notice: "Cashout approved"
+      redirect_to resource_path, notice: "Cashout approved. Use Mark as Sent after manual payout."
     end
   end
 
@@ -49,6 +48,16 @@ ActiveAdmin.register CashoutRequest do
 
     if result.success?
       redirect_to resource_path, notice: "PayPal payout sent successfully"
+    else
+      redirect_to resource_path, alert: result.error_message
+    end
+  end
+
+  member_action :mark_sent, method: :put do
+    result = Cashouts::MarkSent.call(cashout_request: resource, actor: current_admin_user)
+
+    if result.success?
+      redirect_to resource_path, notice: "Cashout marked as sent"
     else
       redirect_to resource_path, alert: result.error_message
     end
@@ -97,6 +106,11 @@ ActiveAdmin.register CashoutRequest do
     link_to "Send via PayPal", send_paypal_admin_cashout_request_path(resource), method: :put, data: { confirm: message }
   end
 
+  action_item :mark_sent, only: :show, if: proc { resource.approved? && resource.payout_method == "others" } do
+    link_to "Mark as Sent", mark_sent_admin_cashout_request_path(resource), method: :put,
+            data: { confirm: "This will mark payout as sent and settle the cashout ledger. Continue?" }
+  end
+
   action_item :reverse_failed, only: :show, if: proc { resource.payout_failed? } do
     link_to "Reverse Failed Payout", reverse_failed_admin_cashout_request_path(resource), method: :put,
             data: { confirm: "This will cancel the cashout and restore funds to user available balance. Continue?" }
@@ -107,7 +121,7 @@ ActiveAdmin.register CashoutRequest do
   end
 
   show do
-    snapshot = paypal_balance_snapshot
+    snapshot = resource.payout_method == "paypal" ? paypal_balance_snapshot : nil
     attributes_table do
       row :id
       row :user
@@ -131,17 +145,19 @@ ActiveAdmin.register CashoutRequest do
       row :updated_at
     end
 
-    panel "PayPal Balance Snapshot" do
-      if snapshot[:available]
-        current_cents = snapshot[:available_cents]
-        projected_cents = current_cents - resource.amount_cents
-        attributes_table_for resource do
-          row("Current PayPal Balance") { helpers.number_to_currency(current_cents / 100.0, precision: 2) }
-          row("Payout Amount") { helpers.number_to_currency(resource.amount_cents / 100.0, precision: 2) }
-          row("Projected New Balance") { helpers.number_to_currency(projected_cents / 100.0, precision: 2) }
+    if resource.payout_method == "paypal"
+      panel "PayPal Balance Snapshot" do
+        if snapshot[:available]
+          current_cents = snapshot[:available_cents]
+          projected_cents = current_cents - resource.amount_cents
+          attributes_table_for resource do
+            row("Current PayPal Balance") { helpers.number_to_currency(current_cents / 100.0, precision: 2) }
+            row("Payout Amount") { helpers.number_to_currency(resource.amount_cents / 100.0, precision: 2) }
+            row("Projected New Balance") { helpers.number_to_currency(projected_cents / 100.0, precision: 2) }
+          end
+        else
+          para(snapshot[:error_message])
         end
-      else
-        para(snapshot[:error_message])
       end
     end
   end

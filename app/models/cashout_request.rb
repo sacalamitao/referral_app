@@ -6,7 +6,8 @@ class CashoutRequest < ApplicationRecord
     paid: 3,
     cancelled: 4,
     payout_processing: 5,
-    payout_failed: 6
+    payout_failed: 6,
+    sent: 7
   }
 
   # Explicit attribute type keeps enum initialization stable during deploy windows
@@ -21,7 +22,7 @@ class CashoutRequest < ApplicationRecord
   validates :payout_method, presence: true
   validates :payout_reference, presence: true
   validates :payout_attempts, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
-  validates :payout_method, inclusion: { in: %w[paypal] }
+  validates :payout_method, inclusion: { in: %w[paypal others] }
   validate :amount_not_greater_than_available_balance, on: :create
   validate :paypal_reference_must_be_email
 
