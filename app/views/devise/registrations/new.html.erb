@@ -39,6 +39,18 @@
 
   .signin-form { display: grid; gap: 12px; }
 
+  .signin-inline-fields {
+    display: grid;
+    gap: 12px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  @media (max-width: 640px) {
+    .signin-inline-fields {
+      grid-template-columns: 1fr;
+    }
+  }
+
   .signin-input {
     width: 100%;
     border: 1px solid #d1d5db;
@@ -99,7 +111,74 @@
       <%= f.text_field :last_name, autocomplete: "family-name", required: true, class: "signin-input" %>
 
       <%= f.label :contact_number, "Contact number" %>
-      <%= f.telephone_field :contact_number, autocomplete: "tel", required: true, placeholder: "+63 9XX XXX XXXX", class: "signin-input" %>
+      <%= f.telephone_field :contact_number, autocomplete: "tel", required: true, placeholder: "+1 (416) 555-1234", class: "signin-input" %>
+
+      <%= f.label :address_line1, "Street address" %>
+      <%= f.text_field :address_line1,
+                       autocomplete: "address-line1",
+                       required: true,
+                       placeholder: "123 Main St",
+                       class: "signin-input" %>
+
+      <%= f.label :address_line2, "Apartment, suite, unit, etc. (optional)" %>
+      <%= f.text_field :address_line2,
+                       autocomplete: "address-line2",
+                       placeholder: "Unit 405",
+                       class: "signin-input" %>
+
+      <div class="signin-inline-fields">
+        <div>
+          <%= f.label :city, "City" %>
+          <%= f.text_field :city,
+                           autocomplete: "address-level2",
+                           required: true,
+                           placeholder: "Toronto",
+                           class: "signin-input" %>
+        </div>
+
+        <div>
+          <%= f.label :province_code, "Province" %>
+          <%= f.select :province_code,
+                       options_for_select(User::CANADIAN_PROVINCE_CODES, f.object.province_code),
+                       { include_blank: "Select" },
+                       autocomplete: "address-level1",
+                       required: true,
+                       class: "signin-input" %>
+        </div>
+
+        <div>
+          <%= f.label :postal_code, "Postal code" %>
+          <%= f.text_field :postal_code,
+                           autocomplete: "postal-code",
+                           required: true,
+                           placeholder: "M5V 3L9",
+                           class: "signin-input" %>
+        </div>
+      </div>
+
+      <%= f.label :country_code, "Country" %>
+      <%= f.select :country_code,
+                   options_for_select([["Canada", "CA"]], f.object.country_code || "CA"),
+                   {},
+                   autocomplete: "country",
+                   required: true,
+                   class: "signin-input" %>
+
+      <%= f.label :date_of_birth, "Date of birth" %>
+      <%= f.date_field :date_of_birth,
+                       autocomplete: "bday",
+                       required: true,
+                       max: Date.current,
+                       class: "signin-input" %>
+
+      <%= f.label :sin, "Social Insurance Number (SIN)" %>
+      <%= f.text_field :sin,
+                       autocomplete: "off",
+                       required: true,
+                       inputmode: "numeric",
+                       maxlength: 11,
+                       placeholder: "123 456 789",
+                       class: "signin-input" %>
 
       <%= f.label :email, "Email address" %>
       <%= f.email_field :email, autofocus: true, autocomplete: "email", class: "signin-input" %>

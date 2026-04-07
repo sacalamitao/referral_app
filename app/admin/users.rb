@@ -5,6 +5,9 @@ ActiveAdmin.register User do
     selectable_column
     id_column
     column :email
+    column :first_name
+    column :last_name
+    column :date_of_birth
     column :status
     column :available_cents
     column :pending_cents
@@ -14,6 +17,9 @@ ActiveAdmin.register User do
   end
 
   filter :email
+  filter :first_name
+  filter :last_name
+  filter :date_of_birth
   filter :status
   filter :created_at
 
@@ -21,6 +27,18 @@ ActiveAdmin.register User do
     attributes_table do
       row :id
       row :email
+      row :first_name
+      row :last_name
+      row :contact_number
+      row :address_line1
+      row :address_line2
+      row :city
+      row :province_code
+      row :postal_code
+      row :country_code
+      row :residential_address
+      row :date_of_birth
+      row(:sin) { |user| user.masked_sin }
       row :status
       row :available_cents
       row :pending_cents
@@ -30,4 +48,3 @@ ActiveAdmin.register User do
     end
   end
 end
-
