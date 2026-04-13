@@ -94,9 +94,11 @@
     <div class="border-b border-slate-200 px-5 py-4">
       <h2 class="text-3xl font-semibold text-slate-800">Withdrawal Wallet</h2>
       <p class="mt-1 text-sm text-slate-500">Submit a payout request from your available balance.</p>
+      <p class="mt-1 text-sm font-medium text-amber-700">Payouts are processed only when your rewards reach <%= CashoutRequest.minimum_payout_label %> or more.</p>
     </div>
 
-    <% min_cashout_cents = 0 %>
+    <% min_cashout_cents = CashoutRequest::MINIMUM_PAYOUT_CENTS %>
+    <% min_cashout_amount_cad = CashoutRequest.minimum_payout_amount_cad %>
     <% has_minimum_balance = @user.available_cents.to_i >= min_cashout_cents %>
 
     <div class="px-5 py-5">
@@ -112,9 +114,9 @@
             <span class="border-l border-slate-200 px-2 py-2 text-slate-400">CAD</span>
             <%= f.number_field :amount_cents,
                                step: 0.01,
-                               min: min_cashout_cents,
+                               min: min_cashout_amount_cad,
                                required: true,
-                               placeholder: "0.00",
+                               placeholder: "90.00",
                                class: "w-full border-0 px-3 py-2 text-sm focus:outline-none focus:ring-0" %>
             <button type="button"
                     class="mr-2 rounded bg-slate-100 px-2 py-1 text-[11px] font-medium text-slate-500 hover:bg-slate-200"
@@ -122,6 +124,7 @@
               max-payout
             </button>
           </div>
+          <p class="mt-1 text-xs text-slate-500">Minimum request amount is <%= CashoutRequest.minimum_payout_label %>.</p>
         </div>
 
         <div>

@@ -1,4 +1,14 @@
 class CashoutRequest < ApplicationRecord
+  MINIMUM_PAYOUT_CENTS = 9_000
+
+  def self.minimum_payout_amount_cad
+    format("%.2f", MINIMUM_PAYOUT_CENTS / 100.0)
+  end
+
+  def self.minimum_payout_label
+    "CAD #{minimum_payout_amount_cad}"
+  end
+
   enum :status, {
     requested: 0,
     approved: 1,
@@ -24,6 +34,7 @@ class CashoutRequest < ApplicationRecord
   validates :payout_attempts, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
   validates :payout_method, inclusion: { in: %w[paypal others] }
   validate :amount_not_greater_than_available_balance, on: :create
+  validate :amount_meets_minimum_payout, on: :create
   validate :paypal_reference_must_be_email
 
   def self.ransackable_attributes(_auth_object = nil)
@@ -64,6 +75,13 @@ class CashoutRequest < ApplicationRecord
     return unless amount_cents > user.available_cents
 
     errors.add(:amount_cents, "exceeds available balance")
+  end
+
+  def amount_meets_minimum_payout
+    return if amount_cents.blank?
+    return if amount_cents >= MINIMUM_PAYOUT_CENTS
+
+    errors.add(:amount_cents, "must be at least #{self.class.minimum_payout_label} to request payout")
   end
 
   def paypal_reference_must_be_email

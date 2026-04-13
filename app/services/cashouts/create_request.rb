@@ -6,8 +6,11 @@ module Cashouts
       amount = Cashouts::ParseUsdAmount.call(raw_amount: amount_cents)
       method = payout_method.to_s.downcase.strip
       reference = payout_reference.to_s.strip
+      minimum_payout_cents = CashoutRequest::MINIMUM_PAYOUT_CENTS
+      minimum_payout_label = CashoutRequest.minimum_payout_label
 
       return ServiceResult.failure(error_code: "invalid_amount", error_message: "Amount must be greater than 0") if amount <= 0
+      return ServiceResult.failure(error_code: "below_minimum_payout", error_message: "Minimum payout request is #{minimum_payout_label}") if amount < minimum_payout_cents
       return ServiceResult.failure(error_code: "insufficient_balance", error_message: "Amount exceeds available balance") if amount > user.available_cents
       return ServiceResult.failure(error_code: "invalid_payout_method", error_message: "Unsupported payout method") unless SUPPORTED_PAYOUT_METHODS.include?(method)
       return ServiceResult.failure(error_code: "missing_payout_reference", error_message: "Payout reference is required") if reference.blank?
